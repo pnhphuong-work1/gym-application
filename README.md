@@ -1,13 +1,18 @@
-ASP.NET Core Project Setup
-1. Clone the Repository
-To get started, clone the repository to your local machine:
-git clone https://github.com/lqviet45/PRN231-GymApp.git
 
-2. run docker compose
-   - Docker compose up -d
+# GymApplication
 
-4. Update the Database (No Migration Needed, we use postgres)
-After cloning the project, you do not need to run database migrations. You simply need to update the database to match the current state of the schema.
+## Installation
 
-Change your connection string in appsetting.json
-
+```bash
+  git clone https://github.com/lqviet45/PRN231-GymApp.git
+```
+## Docker
+- You should check docker-compose
+- and run 
+```bash
+  Docker compose up -d
+```
+## Migration DB (Postgres)
+- You should change the connection in the appsetting.json
+- You don't need to add Migration (Very important if you Migration there are possible to be error when update database)
+- Just run update database
