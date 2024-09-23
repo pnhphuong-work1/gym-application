@@ -9,4 +9,6 @@ public class DayGroup : Entity<Guid>, IAuditableEntity
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
     public DateTime? DeletedAt { get; set; }
+    
+    public virtual ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
 }

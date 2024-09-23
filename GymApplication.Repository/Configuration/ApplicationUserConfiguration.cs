@@ -18,7 +18,7 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
             .IsRequired();
 
         builder.Property(e => e.IsDeleted)
-            .IsRequired();
+            .HasDefaultValue(false);
 
         builder.Property(e => e.CreatedAt)
             .IsRequired();
