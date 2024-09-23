@@ -17,4 +17,9 @@
       </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\GymApplication.Services\GymApplication.Services.csproj" />
+      <ProjectReference Include="..\GymApplication.Shared\GymApplication.Shared.csproj" />
+    </ItemGroup>
+
 </Project>

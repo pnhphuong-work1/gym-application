@@ -1,6 +1,9 @@
 ﻿services:
-  gymapplication:
-    image: gymapplication
+  application:
+    image: gym-application
     build:
       context: .
       dockerfile: GymApplication/Dockerfile
+      
+  database:
+    
