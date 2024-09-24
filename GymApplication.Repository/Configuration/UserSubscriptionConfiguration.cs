@@ -19,9 +19,6 @@ public class UserSubscriptionConfiguration : IEntityTypeConfiguration<UserSubscr
         builder.Property(x => x.PaymentId)
             .IsRequired();
 
-        builder.Property(x => x.RemainingWorkoutTime)
-            .IsRequired();
-
         builder.Property(x => x.PaymentPrice)
             .HasPrecision(18, 2)
             .IsRequired();

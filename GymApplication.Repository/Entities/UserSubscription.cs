@@ -7,7 +7,6 @@ public class UserSubscription : Entity<Guid>, IAuditableEntity
     public Guid UserId { get; set; }
     public Guid SubscriptionId { get; set; }
     public Guid PaymentId { get; set; }
-    public TimeOnly RemainingWorkoutTime { get; set; }
     public decimal PaymentPrice { get; set; }
     public int WorkoutSteak { get; set; }
     public int LongestWorkoutSteak { get; set; }
