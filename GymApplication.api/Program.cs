@@ -1,4 +1,5 @@
 using GymApplication.Repository.Extension;
+using GymApplication.Services.Extension;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +11,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services
-    .AddRepository(builder.Configuration);
+    .AddServicesLayer()
+    .AddRepositoryLayer(builder.Configuration);
 
 var app = builder.Build();
 

@@ -8,7 +8,7 @@ namespace GymApplication.Repository.Extension;
 
 public static class ServiceCollection
 {
-    public static IServiceCollection AddRepository(this IServiceCollection collection, IConfiguration configuration)
+    public static IServiceCollection AddRepositoryLayer(this IServiceCollection collection, IConfiguration configuration)
     {
         return collection
             .AddDatabase(configuration)
