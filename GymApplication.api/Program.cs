@@ -1,3 +1,4 @@
+using GymApplication.api.Middleware;
 using GymApplication.Repository.Extension;
 using GymApplication.Services.Extension;
 
@@ -14,6 +15,9 @@ builder.Services
     .AddServicesLayer()
     .AddRepositoryLayer(builder.Configuration);
 
+builder.Services.AddExceptionHandler<ExceptionHandlingMiddleware>();
+builder.Services.AddProblemDetails();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -23,7 +27,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+
 app.UseHttpsRedirection();
+
+app.UseExceptionHandler();
 
 app.UseAuthorization();
 
