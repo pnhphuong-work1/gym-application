@@ -1,4 +1,5 @@
-﻿using GymApplication.Repository.Entities;
+﻿using GymApplication.Repository.Abstractions;
+using GymApplication.Repository.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +12,7 @@ public static class ServiceCollection
     public static IServiceCollection AddRepositoryLayer(this IServiceCollection collection, IConfiguration configuration)
     {
         return collection
+            .AddRepository()
             .AddDatabase(configuration)
             .AddIdentity();
     }
@@ -49,6 +51,13 @@ public static class ServiceCollection
             op.Password.RequireUppercase = false;
             op.Password.RequireNonAlphanumeric = false;
         });
+        
+        return collection;
+    }
+    
+    private static IServiceCollection AddRepository(this IServiceCollection collection)
+    {
+        collection.AddScoped<IUnitOfWork, UnitOfWork>();
         
         return collection;
     }
