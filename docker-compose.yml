@@ -25,6 +25,22 @@
       - postgres-data:/var/lib/postgresql/data
     networks:
       - backend
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=myPassword
+  redis-insight:
+    image: redis/redisinsight:latest
+    restart: always
+    ports:
+      - "5540:5540"
+    environment:
+      - REDISINSIGHT_REDIS_URI=redis://myPassword@redis:6379
+    depends_on:
+      - redis
 volumes:
   postgres-data:
 networks:
