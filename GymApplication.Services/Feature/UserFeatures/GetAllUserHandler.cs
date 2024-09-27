@@ -25,7 +25,7 @@ public sealed class GetAllUserHandler : IRequestHandler<GetAllUserRequest, Resul
 
     public async Task<Result<PagedResult<UserResponse>>> Handle(GetAllUserRequest request, CancellationToken cancellationToken)
     {
-        var redisKey = $"GetAllUserHandler:{request.CurrentPage}:{request.PageSize}:{request.SortBy}:{request.SortOrder}:{request.Search}";
+        var redisKey = $"GetAllUser:{request.CurrentPage}:{request.PageSize}:{request.SortBy}:{request.SortOrder}:{request.Search}";
 
         var cache = await _cacheServices.GetAsync<PagedResult<UserResponse>>(redisKey, cancellationToken);
         
@@ -70,7 +70,7 @@ public sealed class GetAllUserHandler : IRequestHandler<GetAllUserRequest, Resul
         
         var response = _mapper.Map<PagedResult<UserResponse>>(list);
         
-        await _cacheServices.SetAsync(redisKey, response, cancellationToken);
+        await _cacheServices.SetAsync(redisKey, response, TimeSpan.FromMinutes(5), cancellationToken);
         
         return Result.Success(response);
     }
