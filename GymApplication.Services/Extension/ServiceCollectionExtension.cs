@@ -1,17 +1,21 @@
 ﻿using FluentValidation;
+using GymApplication.Services.Abstractions;
 using GymApplication.Services.Behaviors;
+using GymApplication.Services.Caching;
 using GymApplication.Services.Mapper;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GymApplication.Services.Extension;
 
 public static class ServiceCollectionExtension
 {
-    public static IServiceCollection AddServicesLayer(this IServiceCollection services)
+    public static IServiceCollection AddServicesLayer(this IServiceCollection services, IConfiguration configuration)
     {
         return services
             .AddMediatR()
+            .AddRedisCache(configuration)
             .AddValidators()
             .AddAutoMapper();
     }
@@ -35,6 +39,19 @@ public static class ServiceCollectionExtension
     private static IServiceCollection AddValidators(this IServiceCollection services)
     {
         services.AddValidatorsFromAssembly(Shared.AssemblyRef.SharedAssembly, includeInternalTypes: true);
+        return services;
+    }
+    
+    private static IServiceCollection AddRedisCache(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddStackExchangeRedisCache(redisOptions =>
+        {
+            var connectionString = configuration.GetConnectionString("Redis");
+            redisOptions.Configuration = connectionString;
+        });
+        
+        services.AddTransient<ICacheServices, CacheServices>();
+        
         return services;
     }
 }

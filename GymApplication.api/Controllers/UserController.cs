@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace GymApplication.api.Controllers;
 
-[ApiVersion("2024-09-16")]
+[ApiVersion("2024-09-19")]
 [Route("api/v{version:apiVersion}/users")]
 public class UserController : RestController
 {
@@ -18,13 +18,16 @@ public class UserController : RestController
     }
 
     [HttpGet]
-    public IActionResult Get()
+    public async Task<IResult> Get([FromQuery] GetAllUserRequest request)
     {
-        return Ok("Get User");
+        var result = await _mediator.Send(request);
+        
+        return result.IsSuccess 
+            ? Results.Ok(result) 
+            : HandlerFailure(result);
     }
     
     [HttpGet("{id:guid}", Name = "GetUserById")]
-    
     public async Task<IResult> GetUserById(Guid id)
     {
         var request = new GetUserById(id);

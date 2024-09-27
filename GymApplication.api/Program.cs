@@ -4,12 +4,18 @@ using GymApplication.api.Extension;
 using GymApplication.api.Middleware;
 using GymApplication.Repository.Extension;
 using GymApplication.Services.Extension;
+using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers().AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+builder.Services.AddControllers()
+    .AddNewtonsoftJson(options =>
+    {
+        options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+    });
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services
     .AddApiVersionForController();
@@ -22,7 +28,7 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 builder.Services
-    .AddServicesLayer()
+    .AddServicesLayer(builder.Configuration)
     .AddRepositoryLayer(builder.Configuration);
 
 builder.Services.AddExceptionHandler<ExceptionHandlingMiddleware>();
