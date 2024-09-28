@@ -25,6 +25,7 @@ builder.Services.AddSwaggerGen(options =>
 {
     options.OperationFilter<SwaggerDefaultValues>();
     options.DocumentFilter<ReplaceVersionWithExactValueInPathFilter>();
+    options.SchemaFilter<SwaggerIgnoreFilter>();
 });
 
 builder.Services

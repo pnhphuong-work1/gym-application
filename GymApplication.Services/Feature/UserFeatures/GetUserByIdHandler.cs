@@ -24,9 +24,8 @@ public sealed class GetUserByIdHandler : IRequestHandler<GetUserById, Result<Use
 
     public async Task<Result<UserResponse>> Handle(GetUserById request, CancellationToken cancellationToken)
     {
-        var cacheKey = $"User_{request.Id}";
         
-        var cacheValue = await _cacheServices.GetAsync<UserResponse>(cacheKey, cancellationToken);
+        var cacheValue = await _cacheServices.GetAsync<UserResponse>(request.Id.ToString(), cancellationToken);
         if (cacheValue != null) return Result.Success(cacheValue);
         
         var user = await _userManager.FindByIdAsync(request.Id.ToString());
@@ -34,7 +33,7 @@ public sealed class GetUserByIdHandler : IRequestHandler<GetUserById, Result<Use
         if (user != null)
         {
             var userResponse = _mapper.Map<UserResponse>(user);
-            await _cacheServices.SetAsync(cacheKey, userResponse, TimeSpan.FromMinutes(5), cancellationToken);
+            await _cacheServices.SetAsync(request.Id.ToString(), userResponse, TimeSpan.FromMinutes(5), cancellationToken);
             return Result.Success(userResponse);
         }
         

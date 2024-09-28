@@ -10,19 +10,24 @@ public sealed class GetAllUserRequestValidation : AbstractValidator<GetAllUserRe
     public GetAllUserRequestValidation()
     {
         RuleFor(u => u.CurrentPage)
-            .GreaterThan(0);
+            .GreaterThan(0)
+            .WithMessage("CurrentPage must be greater than 0");
 
         RuleFor(u => u.PageSize)
-            .GreaterThan(0);
+            .GreaterThan(0)
+            .WithMessage("PageSize must be greater than 0");
 
         RuleFor(u => u.SortBy)
-            .Must(u => u is "fullName" or "email" or "phoneNumber" or "dateOfBirth");
+            .Must(u => u is "fullName" or "email" or "phoneNumber" or "dateOfBirth")
+            .WithMessage("SortBy must be either fullName, email, phoneNumber or dateOfBirth");
 
         RuleFor(u => u.SortOrder)
-            .Must(u => u is "asc" or "desc");
+            .Must(u => u is "asc" or "desc")
+            .WithMessage("SortOrder must be either asc or desc");
         
         RuleFor(u => u.SearchBy)
-            .Must(u => u is "fullName" or "email" or "phoneNumber" or "dateOfBirth");
+            .Must(u => u is "fullName" or "email" or "phoneNumber" or "dateOfBirth")
+            .WithMessage("SearchBy must be either fullName, email, phoneNumber or dateOfBirth");
     }
 }
 

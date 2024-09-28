@@ -16,6 +16,7 @@ public sealed class CreateUserRequestValidation : AbstractValidator<CreateUserRe
             .Length(6, 20).NotNull();
 
         RuleFor(u => u.DateOfBirth)
+            .LessThan(DateOnly.FromDateTime(DateTime.Now))
             .NotNull();
         
         RuleFor(u => u.Email)

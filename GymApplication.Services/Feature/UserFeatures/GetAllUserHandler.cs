@@ -33,8 +33,9 @@ public sealed class GetAllUserHandler : IRequestHandler<GetAllUserRequest, Resul
         {
             return Result.Success(cache);
         }
-        
-        var users = _userManager.Users;
+
+        var users = _userManager.Users
+            .Where(u => u.IsDeleted == false);
         
         Expression<Func<ApplicationUser, object>> sortBy = request.SortBy switch
         {
