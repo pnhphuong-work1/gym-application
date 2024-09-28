@@ -16,6 +16,7 @@ public sealed class CreateUserRequestValidation : AbstractValidator<CreateUserRe
             .Length(6, 20).NotNull();
 
         RuleFor(u => u.DateOfBirth)
+            .LessThan(DateOnly.FromDateTime(DateTime.Now))
             .NotNull();
         
         RuleFor(u => u.Email)
@@ -36,7 +37,7 @@ public sealed class CreateUserRequestValidation : AbstractValidator<CreateUserRe
     }
 }
 
-public class CreateUserRequest : IRequest<Result<UserResponse>>
+public sealed class CreateUserRequest : IRequest<Result<UserResponse>>
 {
     public string? FullName { get; set; }
     public string? Email { get; set; }

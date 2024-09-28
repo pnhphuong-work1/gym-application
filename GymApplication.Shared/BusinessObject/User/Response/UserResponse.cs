@@ -1,6 +1,6 @@
 ﻿namespace GymApplication.Shared.BusinessObject.User.Response;
 
-public class UserResponse
+public sealed class UserResponse
 {
     public Guid Id { get; set; }
     public string UserName { get; set; } = string.Empty;

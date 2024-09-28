@@ -1,5 +1,5 @@
-﻿using System.Collections.ObjectModel;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace GymApplication.Shared.Common;
 
@@ -9,8 +9,8 @@ public class PagedResult<TEntity>
     private const int UpperPageSize = 100;
     private const int DefaultPageSize = 10;
     private const int DefaultPageIndex = 1;
-    
-    private PagedResult(ReadOnlyCollection<TEntity> items, int pageIndex, int pageSize, int totalCount)
+
+    public PagedResult(List<TEntity> items, int pageIndex, int pageSize, int totalCount)
     {
         Items = items;
         PageIndex = pageIndex;
@@ -18,7 +18,7 @@ public class PagedResult<TEntity>
         TotalCount = totalCount;
     }
     
-    public ReadOnlyCollection<TEntity> Items { get; }
+    public List<TEntity> Items { get; }
     public int PageIndex { get; }
     public int PageSize { get; }
     public int TotalCount { get; }
@@ -39,9 +39,6 @@ public class PagedResult<TEntity>
             .Take(pageSize)
             .ToListAsync();
         
-        return new PagedResult<TEntity>(items.AsReadOnly(), pageIndex, pageSize, totalCount);
+        return new PagedResult<TEntity>(items, pageIndex, pageSize, totalCount);
     }
-    
-    public static PagedResult<TEntity> Create(List<TEntity> items, int pageIndex, int pageSize, int totalCount)
-        => new(items.AsReadOnly(), pageIndex, pageSize, totalCount);
 }

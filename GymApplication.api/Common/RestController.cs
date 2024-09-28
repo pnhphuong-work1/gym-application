@@ -10,6 +10,18 @@ public abstract class RestController : ControllerBase
         result switch
         {
             { IsSuccess: true } => throw new InvalidOperationException(),
+            { Error.Code: "400" } => Results.BadRequest(
+                CreateProblemDetails(
+                    "Bad Request", StatusCodes.Status400BadRequest,
+                    result.Error)),
+            { Error.Code: "404" } => Results.NotFound(
+                CreateProblemDetails(
+                    "Not Found", StatusCodes.Status404NotFound,
+                    result.Error)),
+            { Error.Code: "500" } => Results.BadRequest(
+                CreateProblemDetails(
+                    "Internal Server Error", StatusCodes.Status500InternalServerError,
+                    result.Error)),
             IValidationResult validationResult =>
                 Results.BadRequest(
                     CreateProblemDetails(
