@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using GymApplication.Services.Abstractions;
+using GymApplication.Services.Authentication;
 using GymApplication.Services.Behaviors;
 using GymApplication.Services.Caching;
 using GymApplication.Services.Mapper;
@@ -17,6 +18,7 @@ public static class ServiceCollectionExtension
             .AddMediatR()
             .AddRedisCache(configuration)
             .AddValidators()
+            .AddJwtService()
             .AddAutoMapper();
     }
     
@@ -52,6 +54,12 @@ public static class ServiceCollectionExtension
         
         services.AddTransient<ICacheServices, CacheServices>();
         
+        return services;
+    }
+    
+    private static IServiceCollection AddJwtService(this IServiceCollection services)
+    {
+        services.AddTransient<IJwtServices, JwtServices>();
         return services;
     }
 }

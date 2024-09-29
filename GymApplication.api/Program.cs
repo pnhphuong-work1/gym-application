@@ -28,6 +28,7 @@ builder.Services.AddSwaggerGen(options =>
     options.SchemaFilter<SwaggerIgnoreFilter>();
 });
 
+builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services
     .AddServicesLayer(builder.Configuration)
     .AddRepositoryLayer(builder.Configuration);
@@ -52,11 +53,11 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-
 app.UseHttpsRedirection();
 
 app.UseExceptionHandler();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
