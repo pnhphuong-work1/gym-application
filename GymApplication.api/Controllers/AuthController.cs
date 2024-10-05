@@ -34,4 +34,13 @@ public class AuthController : RestController
             ? Results.Ok(result) 
             : HandlerFailure(result);
     }
+    
+    [HttpPost("refresh-token")]
+    public async Task<IResult> RefreshToken(RefreshTokenRequest request)
+    {
+        var result = await _mediator.Send(request);
+        return result.IsSuccess 
+            ? Results.Ok(result) 
+            : HandlerFailure(result);
+    }
 }
