@@ -1,4 +1,5 @@
-﻿using Asp.Versioning;
+﻿using System.Net.Mime;
+using Asp.Versioning;
 using GymApplication.api.Common;
 using GymApplication.Shared.BusinessObject.User.Request;
 using GymApplication.Shared.BusinessObject.User.Response;
@@ -10,6 +11,7 @@ namespace GymApplication.api.Controllers;
 
 [ApiVersion("2024-09-19")]
 [Route("api/v{version:apiVersion}/users")]
+[Produces(MediaTypeNames.Application.Json)]
 public class UserController : RestController
 {
     private readonly ISender _mediator;

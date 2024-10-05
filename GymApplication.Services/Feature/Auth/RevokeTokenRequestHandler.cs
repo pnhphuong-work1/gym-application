@@ -23,7 +23,7 @@ public sealed class RevokeTokenRequestHandler : IRequestHandler<RevokeTokenReque
         var email = principal.FindFirstValue(ClaimTypes.Email);
         if (email is null)
         {
-            var error = new Error("404", "Invalid token");
+            var error = new Error("400", "Invalid token");
             return Result.Failure(error);
         }
         await _cacheServices.RemoveAsync(email, cancellationToken);
