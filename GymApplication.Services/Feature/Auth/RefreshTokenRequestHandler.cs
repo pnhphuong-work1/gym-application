@@ -28,7 +28,7 @@ public sealed class RefreshTokenRequestHandler : IRequestHandler<RefreshTokenReq
         var email = principal.FindFirstValue(ClaimTypes.Email);
         if (email is null)
         {
-            var error = new Error("404", "Invalid token");
+            var error = new Error("400", "Invalid token");
             return Result.Failure<LoginResponse>(error);
         }
         var user = await _userManager.FindByEmailAsync(email);
@@ -42,7 +42,7 @@ public sealed class RefreshTokenRequestHandler : IRequestHandler<RefreshTokenReq
         
         if (refreshToken is null || refreshToken.RefreshToken != request.RefreshToken)
         {
-            var error = new Error("404", "Invalid token");
+            var error = new Error("400", "Invalid token");
             return Result.Failure<LoginResponse>(error);
         }
         var claims = principal.Claims;
