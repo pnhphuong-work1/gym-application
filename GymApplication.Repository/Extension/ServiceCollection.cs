@@ -32,7 +32,7 @@ public static class ServiceCollection
     
     private static IServiceCollection AddIdentityService(this IServiceCollection collection)
     {
-        collection.AddIdentity<ApplicationUser, ApplicationRole>(opt =>
+        collection.AddIdentityCore<ApplicationUser>(opt =>
             {
                 opt.Lockout.AllowedForNewUsers = true;
                 opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);

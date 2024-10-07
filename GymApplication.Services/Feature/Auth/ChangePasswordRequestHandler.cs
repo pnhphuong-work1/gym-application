@@ -19,7 +19,7 @@ public sealed class ChangePasswordRequestHandler : IRequestHandler<ChangePasswor
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
         
-        if (user is null)
+        if (user is null || user.IsDeleted)
         {
             var error = new Error("404", "User not found");
             return Result.Failure(error);

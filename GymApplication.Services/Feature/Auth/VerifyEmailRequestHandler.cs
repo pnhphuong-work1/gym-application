@@ -19,7 +19,7 @@ public sealed class VerifyEmailRequestHandler : IRequestHandler<VerifyEmailReque
     {
         var user = await _userManager.FindByEmailAsync(request.Email);
 
-        if (user is null)
+        if (user is null || user.IsDeleted)
         {
             Error error = new("404", "User not found");
             return Result.Failure(error);
