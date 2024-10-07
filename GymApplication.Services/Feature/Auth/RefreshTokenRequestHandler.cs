@@ -32,7 +32,7 @@ public sealed class RefreshTokenRequestHandler : IRequestHandler<RefreshTokenReq
             return Result.Failure<LoginResponse>(error);
         }
         var user = await _userManager.FindByEmailAsync(email);
-        if (user is null)
+        if (user is null || user.IsDeleted)
         {
             var error = new Error("404", "User not found");
             return Result.Failure<LoginResponse>(error);

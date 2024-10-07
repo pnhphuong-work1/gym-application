@@ -63,10 +63,9 @@ if (app.Environment.IsDevelopment())
         }
     });
 }
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
-
-app.UseExceptionHandler();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -42,19 +42,6 @@ public static class JwtExtensions
                 IssuerSigningKey = new SymmetricSecurityKey(key),
                 ClockSkew = TimeSpan.Zero
             };
-            
-            o.Events = new JwtBearerEvents
-            {
-                OnAuthenticationFailed = context =>
-                {
-                    if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
-                    {
-                        context.Response.Headers.Append("IS-TOKEN-EXPIRED", "true");
-                    }
-                    
-                    return Task.CompletedTask;
-                }
-            };
         });
         
         services.AddAuthorization();

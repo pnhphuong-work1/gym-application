@@ -5,6 +5,7 @@ using GymApplication.Shared.BusinessObject.User.Request;
 using GymApplication.Shared.BusinessObject.User.Response;
 using GymApplication.Shared.Common;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymApplication.api.Controllers;

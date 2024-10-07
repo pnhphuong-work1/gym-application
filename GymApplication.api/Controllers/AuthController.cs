@@ -70,10 +70,10 @@ public class AuthController : RestController
             : HandlerFailure(result);
     }
     
-    [HttpGet("verify-email")]
+    [HttpPost("verify-email")]
     [ProducesResponseType(200, Type = typeof(Result))]
     [ProducesResponseType(400, Type = typeof(Result))]
-    public async Task<IResult> VerifyEmail([FromQuery] VerifyEmailRequest request)
+    public async Task<IResult> VerifyEmail(VerifyEmailRequest request)
     {
         var decodedEmail = Uri.UnescapeDataString(request.Email);
         var decodedToken = Uri.UnescapeDataString(request.Token);
@@ -92,6 +92,16 @@ public class AuthController : RestController
     [ProducesResponseType(400, Type = typeof(Result))]
     [ProducesResponseType(404, Type = typeof(Result))]
     public async Task<IResult> ResendVerifyEmail(ResendVerifyEmailRequest request)
+    {
+        var result = await _mediator.Send(request);
+        return result.IsSuccess 
+            ? Results.Ok(result) 
+            : HandlerFailure(result);
+    }
+    
+    [HttpPost("forgot-password")]
+    [ProducesResponseType(200, Type = typeof(Result))]
+    public async Task<IResult> ForgotPassword(ForgotPasswordRequest request)
     {
         var result = await _mediator.Send(request);
         return result.IsSuccess 
