@@ -5,6 +5,7 @@ using GymApplication.Shared.BusinessObject.Auth.Request;
 using GymApplication.Shared.BusinessObject.Auth.Response;
 using GymApplication.Shared.Common;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymApplication.api.Controllers;
@@ -35,6 +36,7 @@ public class AuthController : RestController
     [HttpPost("logout")]
     [ProducesResponseType(200, Type = typeof(Result))]
     [ProducesResponseType(400, Type = typeof(Result))]
+    [Authorize]
     public async Task<IResult> Logout(RevokeTokenRequest request)
     {
         var result = await _mediator.Send(request);
@@ -59,7 +61,37 @@ public class AuthController : RestController
     [ProducesResponseType(200, Type = typeof(Result))]
     [ProducesResponseType(400, Type = typeof(Result))]
     [ProducesResponseType(404, Type = typeof(Result))]
+    [Authorize]
     public async Task<IResult> ChangePassword(ChangePasswordRequest request)
+    {
+        var result = await _mediator.Send(request);
+        return result.IsSuccess 
+            ? Results.Ok(result) 
+            : HandlerFailure(result);
+    }
+    
+    [HttpGet("verify-email")]
+    [ProducesResponseType(200, Type = typeof(Result))]
+    [ProducesResponseType(400, Type = typeof(Result))]
+    public async Task<IResult> VerifyEmail([FromQuery] VerifyEmailRequest request)
+    {
+        var decodedEmail = Uri.UnescapeDataString(request.Email);
+        var decodedToken = Uri.UnescapeDataString(request.Token);
+        
+        request.Email = decodedEmail;
+        request.Token = decodedToken;
+        
+        var result = await _mediator.Send(request);
+        return result.IsSuccess 
+            ? Results.Ok(result) 
+            : HandlerFailure(result);
+    }
+    
+    [HttpPost("resend-verify-email")]
+    [ProducesResponseType(200, Type = typeof(Result))]
+    [ProducesResponseType(400, Type = typeof(Result))]
+    [ProducesResponseType(404, Type = typeof(Result))]
+    public async Task<IResult> ResendVerifyEmail(ResendVerifyEmailRequest request)
     {
         var result = await _mediator.Send(request);
         return result.IsSuccess 
