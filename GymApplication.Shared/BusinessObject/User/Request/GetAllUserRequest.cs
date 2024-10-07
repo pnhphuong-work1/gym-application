@@ -37,6 +37,6 @@ public sealed class GetAllUserRequest : IRequest<Result<PagedResult<UserResponse
     public string? SearchBy { get; set; } = "email";
     public string SortOrder { get; set; } = "asc";
     public string? SortBy { get; set; } = "email";
-    public int CurrentPage { get; set; }
-    public int PageSize { get; set; }
+    public int CurrentPage { get; set; } = 1;
+    public int PageSize { get; set; } = 10;
 }

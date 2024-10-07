@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -12,6 +13,27 @@ public class SwaggerDefaultValues : IOperationFilter
         var apiDescription = context.ApiDescription;
         
         operation.Deprecated |= apiDescription.IsDeprecated();
+        
+        // Check for [Authorize] attribute on controller or action level
+        var hasAuthorize = context.MethodInfo.DeclaringType != null && (context.MethodInfo.DeclaringType.GetCustomAttributes(true).OfType<AuthorizeAttribute>().Any() 
+                                                                        || context.MethodInfo.GetCustomAttributes(true).OfType<AuthorizeAttribute>().Any());
+
+        if (hasAuthorize)
+        {
+            operation.Security = new List<OpenApiSecurityRequirement>
+            {
+                new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+                        },
+                        Array.Empty<string>()
+                    }
+                }
+            };
+        }
         
         foreach (var responseType in context.ApiDescription.SupportedResponseTypes)
         {

@@ -1,6 +1,7 @@
 ﻿using GymApplication.Repository.Abstractions;
 using GymApplication.Repository.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +15,7 @@ public static class ServiceCollection
         return collection
             .AddRepository()
             .AddDatabase(configuration)
-            .AddIdentity();
+            .AddIdentityService();
     }
     
     private static IServiceCollection AddDatabase(this IServiceCollection collection, IConfiguration configuration)
@@ -29,15 +30,17 @@ public static class ServiceCollection
         return collection;
     }
     
-    private static IServiceCollection AddIdentity(this IServiceCollection collection)
+    private static IServiceCollection AddIdentityService(this IServiceCollection collection)
     {
-        collection.AddIdentityCore<ApplicationUser>(opt =>
+        collection.AddIdentity<ApplicationUser, ApplicationRole>(opt =>
             {
                 opt.Lockout.AllowedForNewUsers = true;
                 opt.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);
                 opt.Lockout.MaxFailedAccessAttempts = 5;
+                opt.SignIn.RequireConfirmedEmail = true;
             })
             .AddRoles<ApplicationRole>()
+            .AddDefaultTokenProviders()
             .AddEntityFrameworkStores<ApplicationDbContext>();
 
         collection.Configure<IdentityOptions>(op =>

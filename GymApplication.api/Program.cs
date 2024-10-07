@@ -1,9 +1,10 @@
-using System.Text.Json.Serialization;
 using GymApplication.api.Attribute;
 using GymApplication.api.Extension;
 using GymApplication.api.Middleware;
 using GymApplication.Repository.Extension;
 using GymApplication.Services.Extension;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +27,16 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<SwaggerDefaultValues>();
     options.DocumentFilter<ReplaceVersionWithExactValueInPathFilter>();
     options.SchemaFilter<SwaggerIgnoreFilter>();
+    // Define the security scheme (JWT Bearer Token)
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter 'Bearer' [space] and then your token in the text input below.\n\nExample: \"Bearer abc123\""
+    });
 });
 
 builder.Services.AddJwtAuthentication(builder.Configuration);
