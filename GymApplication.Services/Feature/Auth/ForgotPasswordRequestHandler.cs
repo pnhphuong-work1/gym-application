@@ -33,7 +33,7 @@ public sealed class ForgotPasswordRequestHandler : IRequestHandler<ForgotPasswor
         var encodedToken = Uri.EscapeDataString(resetToken);
         var encodedEmail = Uri.EscapeDataString(request.Email);
         
-        var resetUrl = $"https://localhost:7294/api/v2024-09-29/user/reset-password?email={encodedEmail}&token={encodedToken}";
+        var resetUrl = $"https://localhost:3000/reset-password?email={encodedEmail}&token={encodedToken}";
         var emailTemplate = Helper.GetForgotPasswordEmailTemplate(user.FullName, resetUrl);
         
         //Send email notification
