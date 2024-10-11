@@ -1,8 +1,10 @@
 ﻿using FluentValidation;
+using GymApplication.Shared.Attribute;
 using GymApplication.Shared.BusinessObject.User.Response;
 using GymApplication.Shared.Common;
 using GymApplication.Shared.Emuns;
 using MediatR;
+using Newtonsoft.Json;
 
 namespace GymApplication.Shared.BusinessObject.User.Request;
 
@@ -42,6 +44,8 @@ public sealed class CreateUserRequest : IRequest<Result<UserResponse>>
     public string? FullName { get; set; }
     public string? Email { get; set; }
     public string? PhoneNumber { get; set; }
+    [JsonIgnore]
+    [SwaggerIgnore]
     public Role Role { get; set; }
     public DateOnly DateOfBirth { get; set; }
     public string? Password { get; set; }
