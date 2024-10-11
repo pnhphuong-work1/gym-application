@@ -5,6 +5,7 @@ using GymApplication.Services.Abstractions;
 using GymApplication.Shared.BusinessObject.User.Request;
 using GymApplication.Shared.BusinessObject.User.Response;
 using GymApplication.Shared.Common;
+using GymApplication.Shared.Emuns;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 
@@ -34,7 +35,11 @@ public sealed class GetAllUserHandler : IRequestHandler<GetAllUserRequest, Resul
             return Result.Success(cache);
         }
 
-        var users = _userManager.Users
+        // var users = _userManager.Users
+        //     .Where(u => u.IsDeleted == false);
+
+        var users = (await _userManager.GetUsersInRoleAsync(request.Role.ToString()))
+            .AsQueryable()
             .Where(u => u.IsDeleted == false);
         
         Expression<Func<ApplicationUser, object>> sortBy = request.SortBy switch
@@ -67,7 +72,7 @@ public sealed class GetAllUserHandler : IRequestHandler<GetAllUserRequest, Resul
             users = users.Where(searchBy);
         }
         
-        var list = await PagedResult<ApplicationUser>.CreateAsync(users, request.CurrentPage, request.PageSize);
+        var list = PagedResult<ApplicationUser>.Create(users.ToList(), request.CurrentPage, request.PageSize);
         
         var response = _mapper.Map<PagedResult<UserResponse>>(list);
         

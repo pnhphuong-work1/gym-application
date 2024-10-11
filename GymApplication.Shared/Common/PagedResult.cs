@@ -41,4 +41,21 @@ public class PagedResult<TEntity>
         
         return new PagedResult<TEntity>(items, pageIndex, pageSize, totalCount);
     }
+    
+    public static PagedResult<TEntity> Create(List<TEntity> query, int pageIndex, int pageSize)
+    {
+        pageIndex = pageIndex <= 0 ? DefaultPageIndex : pageIndex;
+        pageSize = pageSize <= 0
+            ? DefaultPageSize
+            : pageSize > UpperPageSize
+                ? UpperPageSize : pageSize;
+        
+        var totalCount = query.Count;
+        var items = query
+            .Skip((pageIndex - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+        
+        return new PagedResult<TEntity>(items, pageIndex, pageSize, totalCount);
+    }
 }

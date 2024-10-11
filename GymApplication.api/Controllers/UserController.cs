@@ -4,6 +4,7 @@ using GymApplication.api.Common;
 using GymApplication.Shared.BusinessObject.User.Request;
 using GymApplication.Shared.BusinessObject.User.Response;
 using GymApplication.Shared.Common;
+using GymApplication.Shared.Emuns;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -26,6 +27,7 @@ public class UserController : RestController
     [ProducesResponseType(200, Type = typeof(Result<PagedResult<UserResponse>>))]
     public async Task<IResult> Get([FromQuery] GetAllUserRequest request)
     {
+        request.Role = Role.User;
         var result = await _mediator.Send(request);
         
         return result.IsSuccess 
@@ -50,6 +52,7 @@ public class UserController : RestController
     [ProducesResponseType(400, Type = typeof(Result))]
     public async Task<IResult> Post(CreateUserRequest request)
     {
+        request.Role = Role.User;
         var result = await _mediator.Send(request);
         return result.IsSuccess 
             ? Results.CreatedAtRoute("GetUserById", new { id = result.Value.Id }, result) 
@@ -58,6 +61,7 @@ public class UserController : RestController
     
     [HttpPut("{id:guid}")]
     [ProducesResponseType(200, Type = typeof(Result))]
+    [Authorize]
     public async Task<IResult> Put(Guid id, UpdateUserRequest request)
     {
         request.Id = id;
@@ -70,6 +74,7 @@ public class UserController : RestController
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(200, Type = typeof(Result))]
     [ProducesResponseType(404, Type = typeof(Result))]
+    [Authorize]
     public async Task<IResult> Delete([FromRoute] Guid id)
     {
         var request = new DeleteUserRequest(id);
