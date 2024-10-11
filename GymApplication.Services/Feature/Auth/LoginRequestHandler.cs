@@ -56,6 +56,7 @@ public sealed class LoginRequestHandler : IRequestHandler<LoginRequest, Result<L
         {
             AccessToken = accessToken,
             RefreshToken = refreshToken,
+            UserId = user.Id.ToString(),
             Role = role.FirstOrDefault(),
             FullName = user.FullName,
             AccessTokenExpiration = DateTime.Now.AddMinutes(5),
