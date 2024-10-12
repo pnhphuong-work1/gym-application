@@ -1,5 +1,7 @@
 ﻿using GymApplication.Repository.Abstractions;
 using GymApplication.Repository.Entities;
+using GymApplication.Repository.Repository;
+using GymApplication.Repository.Repository.Abstraction;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -61,7 +63,7 @@ public static class ServiceCollection
     private static IServiceCollection AddRepository(this IServiceCollection collection)
     {
         collection.AddScoped<IUnitOfWork, UnitOfWork>();
-        
+        collection.AddScoped<IPaymentLogRepository, PaymentLogRepository>();
         return collection;
     }
 }
