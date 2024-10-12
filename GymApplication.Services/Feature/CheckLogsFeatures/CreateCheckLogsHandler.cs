@@ -54,11 +54,11 @@ public class CreateCheckLogsHandler : IRequestHandler<CreateCheckLogsRequest, Re
         }
         
         // Check if the subscription allow user to work out today
-        var exsitUserSubscription = await _userSubscriptionRepo.GetByIdAsync(request.UserSubscriptionId, null);
+        var exsitUserSubscription = await _userSubscriptionRepo.GetByIdAsync(request.UserSubscriptionId);
         List<string> workOutDays = new List<string>();
         if (exsitUserSubscription is not null)
         {
-            var subscription = await _subscriptionRepo.GetByIdAsync(exsitUserSubscription.SubscriptionId, null);
+            var subscription = await _subscriptionRepo.GetByIdAsync(exsitUserSubscription.SubscriptionId);
             workOutDays = subscription.Name.Split(',').ToList();
         }
         
