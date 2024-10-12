@@ -32,7 +32,7 @@ public sealed class ResendVerifyEmailRequestHandler : IRequestHandler<ResendVeri
         // Encode the token and email before adding to the URL
         var encodedToken = Uri.EscapeDataString(verifyToken);
         var encodedEmail = Uri.EscapeDataString(request.Email);
-        var verifyUrl = $"https://localhost:7294/api/v1/user/verify-email?email={encodedEmail}&token={encodedToken}";
+        var verifyUrl = $"https://localhost:3000/verify-email?email={encodedEmail}&token={encodedToken}";
         var emailTemplate = Helper.GetEmailTemplate(user.FullName, verifyUrl);
         
         //Send email notification

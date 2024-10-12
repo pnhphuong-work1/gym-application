@@ -108,4 +108,19 @@ public class AuthController : RestController
             ? Results.Ok(result) 
             : HandlerFailure(result);
     }
+    
+    [HttpPost("reset-password")]
+    public async Task<IResult> ResetPassword(ResetPasswordRequest request)
+    {
+        var decodedEmail = Uri.UnescapeDataString(request.Email);
+        var decodedToken = Uri.UnescapeDataString(request.Token);
+        
+        request.Email = decodedEmail;
+        request.Token = decodedToken;
+        
+        var result = await _mediator.Send(request);
+        return result.IsSuccess 
+            ? Results.Ok(result) 
+            : HandlerFailure(result);
+    }
 }

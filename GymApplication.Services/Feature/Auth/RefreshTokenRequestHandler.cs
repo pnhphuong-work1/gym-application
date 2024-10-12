@@ -37,6 +37,7 @@ public sealed class RefreshTokenRequestHandler : IRequestHandler<RefreshTokenReq
             var error = new Error("404", "User not found");
             return Result.Failure<LoginResponse>(error);
         }
+        var role = await _userManager.GetRolesAsync(user);
         
         var refreshToken = await _cacheServices.GetAsync<LoginResponse>(email, cancellationToken);
         
@@ -53,6 +54,9 @@ public sealed class RefreshTokenRequestHandler : IRequestHandler<RefreshTokenReq
         {
             AccessToken = _jwtServices.GenerateAccessToken(claims),
             RefreshToken = newRefreshToken,
+            FullName = user.FullName,
+            Role = role[0],
+            UserId = user.Id.ToString(),
             AccessTokenExpiration = DateTime.Now.AddMinutes(5),
             RefreshTokenExpiration = DateTime.Now.AddHours(3)
         };

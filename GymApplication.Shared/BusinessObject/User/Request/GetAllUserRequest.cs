@@ -1,6 +1,9 @@
-﻿using FluentValidation;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using FluentValidation;
+using GymApplication.Shared.Attribute;
 using GymApplication.Shared.BusinessObject.User.Response;
 using GymApplication.Shared.Common;
+using GymApplication.Shared.Emuns;
 using MediatR;
 
 namespace GymApplication.Shared.BusinessObject.User.Request;
@@ -37,6 +40,10 @@ public sealed class GetAllUserRequest : IRequest<Result<PagedResult<UserResponse
     public string? SearchBy { get; set; } = "email";
     public string SortOrder { get; set; } = "asc";
     public string? SortBy { get; set; } = "email";
+    
+    [NotMapped]
+    [SwaggerIgnore]
+    public Role Role { get; set; }
     public int CurrentPage { get; set; } = 1;
     public int PageSize { get; set; } = 10;
 }
