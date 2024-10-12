@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using GymApplication.api.Common;
+using GymApplication.Shared.BusinessObject.Revenue.Request;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,5 +16,15 @@ public class RevenueController : RestController
     public RevenueController(ISender sender)
     {
         _sender = sender;
+    }
+    
+    [HttpGet]
+    public async Task<IResult> GetRevenue([FromQuery] GetRevenueRequest request)
+    {
+        var result = await _sender.Send(request);
+        
+        return result.IsSuccess ? 
+            Results.Ok(result)
+            : HandlerFailure(result);
     }
 }

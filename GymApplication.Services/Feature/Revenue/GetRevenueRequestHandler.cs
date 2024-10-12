@@ -1,7 +1,11 @@
-﻿using GymApplication.Repository.Repository.Abstraction;
+﻿using System.Globalization;
+using System.Linq.Expressions;
+using GymApplication.Repository.Entities;
+using GymApplication.Repository.Repository.Abstraction;
 using GymApplication.Shared.BusinessObject.Revenue.Request;
 using GymApplication.Shared.BusinessObject.Revenue.Response;
 using GymApplication.Shared.Common;
+using GymApplication.Shared.Emuns;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,5 +22,47 @@ public class GetRevenueRequestHandler : IRequestHandler<GetRevenueRequest, Resul
 
     public async Task<Result<RevenueResponse>> Handle(GetRevenueRequest request, CancellationToken cancellationToken)
     {
-        var paymentLogs = await _paymentLogRepository.GetByConditionsAsync(x => x.CreatedAt.Month == request.Month && x.CreatedAt.Year == request.Year);
+        Expression<Func<PaymentLog, object>>[] includes =
+        [
+            x => x.UserSubscriptions
+        ];
+
+        var paymentLogs = await _paymentLogRepository
+            .GetByConditionsAsync(x =>
+                    x.CreatedAt.Month == request.Month
+                    && x.CreatedAt.Year == request.Year
+                    && x.PaymentStatus == PaymentStatus.Success.ToString(),
+                includes
+            );
+
+        var totalMember = paymentLogs.Select(x => x.UserId).Distinct().Count();
+        var totalRevenue = paymentLogs.Select(x => x.UserSubscriptions.Select(us => us.PaymentPrice).Sum()).Sum();
+        var calendar = CultureInfo.InvariantCulture.Calendar;
+        var weeklyRevenue = paymentLogs
+            .GroupBy(x => GetWeekOfMonth(x.CreatedAt, calendar))
+            .Select(x => new WeeklyRevenueResponse
+            {
+                Week = x.Key.ToString(),
+                Revenue = x.Select(y => y.UserSubscriptions.Select(us => us.PaymentPrice).Sum()).Sum()
+            })
+            .ToList();
+        
+        var response = new RevenueResponse
+        {
+            TotalMember = totalMember,
+            TotalRevenue = totalRevenue,
+            WeeklyRevenue = weeklyRevenue
+        };
+        
+        return Result.Success(response);
+    }
+    
+    private static int GetWeekOfMonth(DateTime date, Calendar calendar)
+    {
+        var firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
+        var firstWeekOfMonth = calendar.GetWeekOfYear(firstDayOfMonth, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
+        var currentWeek = calendar.GetWeekOfYear(date, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
+
+        return currentWeek - firstWeekOfMonth + 1;  // Subtract to get relative week of the month
+    }
 }
