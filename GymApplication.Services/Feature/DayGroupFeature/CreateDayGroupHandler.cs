@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using GymApplication.Repository.Abstractions;
 using GymApplication.Repository.Entities;
 using GymApplication.Repository.Repository.Abstraction;
 using GymApplication.Services.Abstractions;
@@ -15,13 +16,15 @@ public class CreateDayGroupHandler : IRequestHandler<CreateDayGroupRequest, Resu
     private readonly IRepoBase<DayGroup, Guid> _dayGroupRepository;
     private readonly IMapper _mapper;
     private readonly ICacheServices _cacheServices;
+    private readonly IUnitOfWork _unitOfWork;
 
     public CreateDayGroupHandler(IRepoBase<DayGroup, Guid> dayGroupRepository, IMapper mapper,
-        ICacheServices cacheServices)
+        ICacheServices cacheServices, IUnitOfWork unitOfWork)
     {
         _dayGroupRepository = dayGroupRepository;
         _mapper = mapper;
         _cacheServices = cacheServices;
+        _unitOfWork = unitOfWork;
     }
 
     public Task<Result<DayGroupResponse>> Handle(CreateDayGroupRequest request,
@@ -34,6 +37,7 @@ public class CreateDayGroupHandler : IRequestHandler<CreateDayGroupRequest, Resu
             CreatedAt = DateTime.UtcNow
         };
         _dayGroupRepository.Add(dayGroup);
+        _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var response = _mapper.Map<DayGroupResponse>(dayGroup);
 

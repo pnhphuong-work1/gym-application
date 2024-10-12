@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using AutoMapper;
+using GymApplication.Repository.Abstractions;
 using GymApplication.Repository.Entities;
 using GymApplication.Repository.Repository.Abstraction;
 using GymApplication.Services.Abstractions;
@@ -19,14 +20,16 @@ public class CreateSubscriptionHandler : IRequestHandler<CreateSubscriptionReque
     private readonly IRepoBase<DayGroup, Guid> _dayGroupRepository;
     private readonly IMapper _mapper;
     private readonly ICacheServices _cacheServices;
+    private readonly IUnitOfWork _unitOfWork;
 
     public CreateSubscriptionHandler(IRepoBase<Subscription, Guid> subscriptionRepository, IMapper mapper,
-        ICacheServices cacheServices, IRepoBase<DayGroup, Guid> dayGroupRepository)
+        ICacheServices cacheServices, IRepoBase<DayGroup, Guid> dayGroupRepository, IUnitOfWork unitOfWork)
     {
         _subscriptionRepository = subscriptionRepository;
         _mapper = mapper;
         _cacheServices = cacheServices;
         _dayGroupRepository = dayGroupRepository;
+        _unitOfWork = unitOfWork;
     }
 
     public Task<Result<SubscriptionResponse>> Handle(CreateSubscriptionRequest request,
@@ -52,6 +55,7 @@ public class CreateSubscriptionHandler : IRequestHandler<CreateSubscriptionReque
             CreatedAt = DateTime.UtcNow
         };
         _subscriptionRepository.Add(subscription);
+        _unitOfWork.SaveChangesAsync(cancellationToken);
 
         var response = _mapper.Map<SubscriptionResponse>(subscription);
         response.Group = dayGroup.Group;

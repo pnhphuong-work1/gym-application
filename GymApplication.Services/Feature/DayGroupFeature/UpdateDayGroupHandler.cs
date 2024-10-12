@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using GymApplication.Repository.Abstractions;
 using GymApplication.Repository.Entities;
 using GymApplication.Repository.Repository.Abstraction;
 using GymApplication.Services.Abstractions;
@@ -11,12 +12,15 @@ namespace GymApplication.Services.Feature.DayGroupFeature;
 public sealed class UpdateDayGroupHandler : IRequestHandler<UpdateDayGroupRequest, Result>
 {
     private readonly IRepoBase<DayGroup, Guid> _dayGroupRepository;
-    private readonly ICacheServices _cacheServices; 
+    private readonly ICacheServices _cacheServices;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public UpdateDayGroupHandler(IRepoBase<DayGroup, Guid> dayGroupRepoBase, ICacheServices cacheServices)
+    public UpdateDayGroupHandler(IRepoBase<DayGroup, Guid> dayGroupRepository,
+        ICacheServices cacheServices, IUnitOfWork unitOfWork)
     {
-        _dayGroupRepository = dayGroupRepoBase;
+        _dayGroupRepository = dayGroupRepository;
         _cacheServices = cacheServices;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result> Handle(UpdateDayGroupRequest request, CancellationToken cancellationToken)
@@ -36,6 +40,7 @@ public sealed class UpdateDayGroupHandler : IRequestHandler<UpdateDayGroupReques
             dayGroup.UpdatedAt = DateTime.Now;
 
             _dayGroupRepository.Update(dayGroup);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             await _cacheServices.SetAsync(dayGroup.Id.ToString(), dayGroup, cancellationToken);
             return Result.Success();

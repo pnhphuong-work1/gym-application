@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using GymApplication.Repository.Abstractions;
 using GymApplication.Repository.Entities;
 using GymApplication.Repository.Repository.Abstraction;
 using GymApplication.Services.Abstractions;
@@ -11,12 +12,15 @@ namespace GymApplication.Services.Feature.DayGroupFeature;
 public sealed class DeleteDayGroupHandler : IRequestHandler<DeleteDayGroupRequest, Result>
 {
     private readonly IRepoBase<DayGroup, Guid> _dayGroupRepository;
-    private readonly ICacheServices _cacheServices; 
+    private readonly ICacheServices _cacheServices;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteDayGroupHandler(IRepoBase<DayGroup, Guid> dayGroupRepository, ICacheServices cacheServices)
+    public DeleteDayGroupHandler(IRepoBase<DayGroup, Guid> dayGroupRepository,
+        ICacheServices cacheServices, IUnitOfWork unitOfWork)
     {
         _dayGroupRepository = dayGroupRepository;
         _cacheServices = cacheServices;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<Result> Handle(DeleteDayGroupRequest request, CancellationToken cancellationToken)
@@ -34,6 +38,7 @@ public sealed class DeleteDayGroupHandler : IRequestHandler<DeleteDayGroupReques
             }
 
             _dayGroupRepository.Delete(dayGroup);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             await _cacheServices.RemoveAsync(request.Id.ToString(), cancellationToken);
             return Result.Success();
