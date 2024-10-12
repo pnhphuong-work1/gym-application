@@ -27,7 +27,7 @@ public class CreateDayGroupHandler : IRequestHandler<CreateDayGroupRequest, Resu
         _unitOfWork = unitOfWork;
     }
 
-    public Task<Result<DayGroupResponse>> Handle(CreateDayGroupRequest request,
+    public async Task<Result<DayGroupResponse>> Handle(CreateDayGroupRequest request,
         CancellationToken cancellationToken)
     {
         var dayGroup = new DayGroup()
@@ -37,12 +37,15 @@ public class CreateDayGroupHandler : IRequestHandler<CreateDayGroupRequest, Resu
             CreatedAt = DateTime.UtcNow
         };
         _dayGroupRepository.Add(dayGroup);
-        _unitOfWork.SaveChangesAsync(cancellationToken);
-
+        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        if (!result)
+        {
+            
+        }
         var response = _mapper.Map<DayGroupResponse>(dayGroup);
 
         _cacheServices.SetAsync(dayGroup.Id.ToString(), response, TimeSpan.FromMinutes(5), cancellationToken);
 
-        return Task.FromResult(Result.Success(response));
+        return Result.Success(response);
     }
 }

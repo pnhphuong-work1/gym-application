@@ -4,6 +4,7 @@ using GymApplication.Repository.Entities;
 using GymApplication.Repository.Repository.Abstraction;
 using GymApplication.Services.Abstractions;
 using GymApplication.Shared.BusinessObject.DayGroups.Request;
+using GymApplication.Shared.BusinessObject.DayGroups.Respone;
 using GymApplication.Shared.Common;
 using MediatR;
 
@@ -12,23 +13,17 @@ namespace GymApplication.Services.Feature.DayGroupFeature;
 public sealed class DeleteDayGroupHandler : IRequestHandler<DeleteDayGroupRequest, Result>
 {
     private readonly IRepoBase<DayGroup, Guid> _dayGroupRepository;
-    private readonly ICacheServices _cacheServices;
     private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteDayGroupHandler(IRepoBase<DayGroup, Guid> dayGroupRepository,
-        ICacheServices cacheServices, IUnitOfWork unitOfWork)
+    public DeleteDayGroupHandler(IRepoBase<DayGroup, Guid> dayGroupRepository, IUnitOfWork unitOfWork)
     {
         _dayGroupRepository = dayGroupRepository;
-        _cacheServices = cacheServices;
         _unitOfWork = unitOfWork;
     }
 
     public async Task<Result> Handle(DeleteDayGroupRequest request, CancellationToken cancellationToken)
     {
-        try
-        {
-            var dayGroup =
-                await _dayGroupRepository.GetByIdAsync(request.Id, new Expression<Func<DayGroup, object>>[0]);
+            var dayGroup = await _dayGroupRepository.GetByIdAsync(request.Id, null);
 
             if (dayGroup is null)
             {
@@ -38,16 +33,11 @@ public sealed class DeleteDayGroupHandler : IRequestHandler<DeleteDayGroupReques
             }
 
             _dayGroupRepository.Delete(dayGroup);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+            
+            if (result) return Result.Success();
 
-            await _cacheServices.RemoveAsync(request.Id.ToString(), cancellationToken);
-            return Result.Success();
-        }
-        catch(Exception ex)
-        {
-            var error = new Error("500", "Failed to delete DayGroup");
-        
-            return Result.Failure(error);
-        }
+            var error = new Error("500", "Delete DayGroup Faied");
+            return Result.Failure<DayGroupResponse>(error);
     }
 }
