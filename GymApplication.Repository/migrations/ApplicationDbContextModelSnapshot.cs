@@ -207,7 +207,7 @@ namespace GymApplication.Repository.migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DayGroups");
+                    b.ToTable("DayGroup");
                 });
 
             modelBuilder.Entity("GymApplication.Repository.Entities.PaymentLog", b =>
