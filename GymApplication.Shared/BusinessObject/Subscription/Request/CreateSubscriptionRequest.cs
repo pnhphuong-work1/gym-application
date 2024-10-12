@@ -10,6 +10,7 @@ public sealed class CreateSubscriptionRequest : IRequest<Result<SubscriptionResp
     public string Name { get; set; }
     public TimeSpan TotalWorkoutTime { get; set; }
     public decimal Price { get; set; }
+    public string Group { get; set; }
 }
 public sealed class CreateSubscriptionRequestValidation : AbstractValidator<CreateSubscriptionRequest> {
     public CreateSubscriptionRequestValidation()
@@ -22,5 +23,8 @@ public sealed class CreateSubscriptionRequestValidation : AbstractValidator<Crea
 
         RuleFor(s => s.TotalWorkoutTime)
             .NotNull();
+        
+        RuleFor(s => s.Group)
+            .NotNull().NotEmpty();
     }
 }

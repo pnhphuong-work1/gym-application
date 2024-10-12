@@ -16,7 +16,7 @@ public sealed class UpdateDayGroupRequestValidation : AbstractValidator<UpdateDa
         
         RuleFor(d => d.Group)
             .NotNull().NotEmpty()
-            .WithMessage("FullName must not be null or empty");
+            .WithMessage("Group must not be null or empty");
     }
 }
 
@@ -25,5 +25,5 @@ public sealed class UpdateDayGroupRequest : IRequest<Result>
     [NotMapped]
     [SwaggerIgnore]
     public Guid Id { get; set; }
-    public string? Group { get; set; }
+    public string Group { get; set; }
 }
