@@ -64,6 +64,7 @@ public static class ServiceCollection
     {
         collection.AddScoped<IUnitOfWork, UnitOfWork>();
         collection.AddScoped<IPaymentLogRepository, PaymentLogRepository>();
+        collection.AddScoped(typeof(IRepoBase<,>), typeof(RepoBase<,>));
         return collection;
     }
 }

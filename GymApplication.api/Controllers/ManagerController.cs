@@ -38,7 +38,7 @@ public class ManagerController : RestController
         request.Role = Role.Manager;
         var result = await _mediator.Send(request);
         return result.IsSuccess 
-            ? Results.CreatedAtRoute("GetManagerById", new { id = result.Value.Id }, result) 
+            ? Results.CreatedAtRoute("GetUserById", new { id = result.Value.Id }, result) 
             : HandlerFailure(result);
     }
 }

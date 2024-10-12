@@ -3,6 +3,7 @@ using GymApplication.Repository.Entities;
 using GymApplication.Shared.BusinessObject.DayGroups.Respone;
 using GymApplication.Shared.BusinessObject.Subscription.Respone;
 using GymApplication.Shared.BusinessObject.CheckLogs.Response;
+using GymApplication.Shared.BusinessObject.Payment.Response;
 using GymApplication.Shared.BusinessObject.User.Response;
 using GymApplication.Shared.Common;
 
@@ -17,6 +18,10 @@ public class ServiceProfile : Profile
 
         CreateMap<PagedResult<ApplicationUser>, PagedResult<UserResponse>>()
             .ReverseMap();
+
+        CreateMap<PaymentLog, PaymentReturnResponse>()
+            .ForMember(x => x.User, opt => opt.MapFrom(x => x.User))
+            .ForMember(x => x.Amount, opt => opt.MapFrom(x => x.UserSubscriptions.Sum(u => u.PaymentPrice)));
 
         CreateMap<CheckLog, CheckLogsResponse>()
             .ReverseMap();
