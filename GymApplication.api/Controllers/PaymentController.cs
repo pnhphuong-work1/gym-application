@@ -38,6 +38,16 @@ public class PaymentController : RestController
             : HandlerFailure(result);
     }
     
+    [HttpGet]
+    public async Task<IResult> GetPayments([FromQuery] GetAllPaymentRequest request)
+    {
+        var result = await _sender.Send(request);
+        
+        return result.IsSuccess ? 
+            Results.Ok(result)
+            : HandlerFailure(result);
+    }
+    
     // [HttpGet("{id}")]
     // public async Task<IResult> GetPaymentById([FromRoute] Guid id)
     // {

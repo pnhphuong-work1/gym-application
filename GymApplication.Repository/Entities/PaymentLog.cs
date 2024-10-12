@@ -14,4 +14,5 @@ public class PaymentLog : Entity<Guid>, IAuditableEntity
     public DateTime? DeletedAt { get; set; }
     
     public virtual ApplicationUser? User { get; set; }
+    public virtual ICollection<UserSubscription> UserSubscriptions { get; set; }
 }

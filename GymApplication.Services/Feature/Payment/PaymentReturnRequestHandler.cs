@@ -34,20 +34,13 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
     public async Task<Result<PaymentReturnResponse>> Handle(PaymentReturnRequest request, CancellationToken cancellationToken)
     {
         var paymentLog = await _paymentLogRepository.GetQueryable()
+            .Include(x => x.User)
             .FirstOrDefaultAsync(x => x.PayOsOrderId == request.OrderCode, cancellationToken);
 
 
         if (paymentLog is null)
         {
             var error = new Error("404", "Payment not found");
-            return Result.Failure<PaymentReturnResponse>(error);
-        }
-        
-        var user = await _userManager.FindByIdAsync(paymentLog.UserId.ToString());
-        
-        if (user is null)
-        {
-            var error = new Error("404", "User not found");
             return Result.Failure<PaymentReturnResponse>(error);
         }
         
@@ -73,7 +66,7 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
             Amount = paymentDetail.amount,
             PaymentDate = paymentLog.PaymentDate,
             UserId = paymentLog.UserId,
-            User = _mapper.Map<UserResponse>(user)
+            User = _mapper.Map<UserResponse>(paymentLog.User)
         };
         
         return Result.Success(res);

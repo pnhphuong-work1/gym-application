@@ -58,7 +58,7 @@ namespace GymApplication.Repository.migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "DayGroups",
+                name: "DayGroup",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -223,7 +223,7 @@ namespace GymApplication.Repository.migrations
                     table.ForeignKey(
                         name: "FK_Subscriptions_DayGroups_DayGroupId",
                         column: x => x.DayGroupId,
-                        principalTable: "DayGroups",
+                        principalTable: "DayGroup",
                         principalColumn: "Id");
                 });
 
@@ -414,7 +414,7 @@ namespace GymApplication.Repository.migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "DayGroups");
+                name: "DayGroup");
         }
     }
 }

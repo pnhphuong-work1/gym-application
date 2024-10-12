@@ -207,7 +207,7 @@ namespace GymApplication.Repository.migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DayGroups");
+                    b.ToTable("DayGroup");
                 });
 
             modelBuilder.Entity("GymApplication.Repository.Entities.PaymentLog", b =>
@@ -499,9 +499,9 @@ namespace GymApplication.Repository.migrations
             modelBuilder.Entity("GymApplication.Repository.Entities.UserSubscription", b =>
                 {
                     b.HasOne("GymApplication.Repository.Entities.PaymentLog", "Payment")
-                        .WithMany()
+                        .WithMany("UserSubscriptions")
                         .HasForeignKey("PaymentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("GymApplication.Repository.Entities.Subscription", "Subscription")
@@ -586,6 +586,11 @@ namespace GymApplication.Repository.migrations
             modelBuilder.Entity("GymApplication.Repository.Entities.DayGroup", b =>
                 {
                     b.Navigation("Subscriptions");
+                });
+
+            modelBuilder.Entity("GymApplication.Repository.Entities.PaymentLog", b =>
+                {
+                    b.Navigation("UserSubscriptions");
                 });
 
             modelBuilder.Entity("GymApplication.Repository.Entities.Subscription", b =>
