@@ -31,21 +31,29 @@ public class RepoBase<TEntity, TKey> : IRepoBase<TEntity, TKey>
         return query.ToListAsync();
     }
 
-    public Task<List<TEntity>> GetByConditionsAsync(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, object>>[] includes)
+    public Task<List<TEntity>> GetByConditionsAsync(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, object>>[]? includes)
     {
         var query = _context.Set<TEntity>()
-            .AsQueryable()
-            .IncludeMultiple(includes);
+            .AsQueryable();
+        
+        if (includes is not null)
+        {
+            query = query.IncludeMultiple(includes);
+        }
         
         return query.Where(predicate)
             .ToListAsync();
     }
 
-    public Task<TEntity?> GetByIdAsync(TKey id, Expression<Func<TEntity, object>>[] includes)
+    public Task<TEntity?> GetByIdAsync(TKey id, Expression<Func<TEntity, object>>[]? includes)
     {
         var query = _context.Set<TEntity>()
-            .AsQueryable()
-            .IncludeMultiple(includes);
+            .AsQueryable();
+        
+        if (includes is not null)
+        {
+            query = query.IncludeMultiple(includes);
+        }
         
         return query.FirstOrDefaultAsync(x => x.Id.Equals(id));
     }
