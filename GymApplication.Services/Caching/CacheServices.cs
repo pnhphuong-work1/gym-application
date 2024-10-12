@@ -22,23 +22,23 @@ public class CacheServices : ICacheServices
         _distributedCache = distributedCache;
     }
 
-    public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default) where T : class
+    public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default) where T : notnull
     {
         var cacheValue = await _distributedCache.GetStringAsync(key, cancellationToken);
         if (cacheValue == null)
-            return null;
+            return default;
         var value = JsonConvert.DeserializeObject<T>(cacheValue);
         return value;
     }
 
-    public async Task SetAsync<T>(string key, T value, CancellationToken cancellationToken = default) where T : class
+    public async Task SetAsync<T>(string key, T value, CancellationToken cancellationToken = default) where T : notnull
     {
         string cacheValue = JsonConvert.SerializeObject(value);
         await _distributedCache.SetStringAsync(key, cacheValue, cancellationToken);
         CacheKeys.TryAdd(key, false);
     }
 
-    public async Task SetAsync<T>(string key, T value, TimeSpan timeToLive, CancellationToken cancellationToken = default) where T : class
+    public async Task SetAsync<T>(string key, T value, TimeSpan timeToLive, CancellationToken cancellationToken = default) where T : notnull
     {
         string cacheValue = JsonConvert.SerializeObject(value);
         var options = new DistributedCacheEntryOptions

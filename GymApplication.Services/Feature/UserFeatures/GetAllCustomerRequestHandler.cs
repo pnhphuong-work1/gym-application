@@ -80,10 +80,14 @@ public sealed class GetAllCustomerRequestHandler : IRequestHandler<GetAllCustome
             PhoneNumber = u.PhoneNumber,
             UserName = u.UserName,
             TotalPayment = u.Payments.Select(x => x.UserSubscriptions.Sum(x => x.PaymentPrice)).Sum(),
-            TotalSendTime = u.CheckLogs.Where(x => x.CheckStatus == "CheckOut").Sum(x => x.WorkoutTime!.Value.Hour),
-        });     
+            TotalSendTime = u.CheckLogs.Where(x => x.CheckStatus == LogsStatus.CheckOut.ToString())
+                .Sum(x => x.WorkoutTime!.Value.Hour),
+        }).ToList();
         
+        var pagedResult = PagedResult<CustomerResponse>.Create(res, request.CurrentPage, request.PageSize);
         
-        await _cacheServices.SetAsync(redisKey, response, TimeSpan.FromMinutes(5), cancellationToken);
+        await _cacheServices.SetAsync(redisKey, pagedResult, cancellationToken);
+        
+        return Result.Success(pagedResult);
     }
 }
