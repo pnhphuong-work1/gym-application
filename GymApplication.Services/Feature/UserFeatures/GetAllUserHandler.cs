@@ -26,7 +26,7 @@ public sealed class GetAllUserHandler : IRequestHandler<GetAllUserRequest, Resul
 
     public async Task<Result<PagedResult<UserResponse>>> Handle(GetAllUserRequest request, CancellationToken cancellationToken)
     {
-        var redisKey = $"GetAllUser:{request.CurrentPage}:{request.PageSize}:{request.SortBy}:{request.SortOrder}:{request.Search}";
+        var redisKey = $"GetAllUser:{request.CurrentPage}:{request.PageSize}:{request.SortBy}:{request.SortOrder}:{request.Search}:{request.SearchBy}:{request.Role}";
 
         var cache = await _cacheServices.GetAsync<PagedResult<UserResponse>>(redisKey, cancellationToken);
         
