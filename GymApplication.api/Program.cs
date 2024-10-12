@@ -2,7 +2,10 @@ using System.Text.Json.Serialization;
 using GymApplication.api.Attribute;
 using GymApplication.api.Extension;
 using GymApplication.api.Middleware;
+using GymApplication.Repository.Entities;
 using GymApplication.Repository.Extension;
+using GymApplication.Repository.Repository;
+using GymApplication.Repository.Repository.Abstraction;
 using GymApplication.Services.Extension;
 using Newtonsoft.Json.Serialization;
 
@@ -19,7 +22,8 @@ builder.Services.AddControllers()
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services
     .AddApiVersionForController();
-
+builder.Services.AddTransient<IRepoBase<Subscription, Guid>, RepoBase<Subscription, Guid>>();
+builder.Services.AddTransient<IRepoBase<DayGroup, Guid>, RepoBase<DayGroup, Guid>>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
