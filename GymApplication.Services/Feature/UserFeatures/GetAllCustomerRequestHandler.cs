@@ -60,28 +60,11 @@ public sealed class GetAllCustomerRequestHandler : IRequestHandler<GetAllCustome
             CheckLogs = checkLog.Where(l => l.UserId == u.Id).ToList()
         }).AsQueryable();
         
-        Expression<Func<ApplicationUser, object>> sortBy = request.SortBy switch
-        {
-            "fullName" => u => u.FullName!,
-            "email" => u => u.Email!,
-            "phoneNumber" => u => u.PhoneNumber!,
-            "dateOfBirth" => u => u.DateOfBirth,
-            _ => u => u.Email!
-        };
-        
-        usersWithPayment = request.SortOrder switch
-        {
-            "asc" => usersWithPayment.OrderBy(sortBy),
-            "desc" => usersWithPayment.OrderByDescending(sortBy),
-            _ => usersWithPayment.OrderBy(sortBy)
-        };
-        
         Expression<Func<ApplicationUser, bool>> searchBy = request.SearchBy switch
         {
             "fullName" => u => u.FullName!.Contains(request.Search!),
             "email" => u => u.Email!.Contains(request.Search!),
             "phoneNumber" => u => u.PhoneNumber!.Contains(request.Search!),
-            "dateOfBirth" => u => u.DateOfBirth.ToString().Contains(request.Search!),
             _ => u => u.Email!.Contains(request.Search!)
         };
         
@@ -101,6 +84,23 @@ public sealed class GetAllCustomerRequestHandler : IRequestHandler<GetAllCustome
             TotalSpentTime = u.CheckLogs.Where(x => x.CheckStatus == LogsStatus.CheckOut.ToString())
                 .Sum(x => x.WorkoutTime!.Value.Hour),
         }).ToList();
+        
+        Func<CustomerResponse, object> sortBy = request.SortBy switch
+        {
+            "fullName" => u => u.FullName!,
+            "email" => u => u.Email!,
+            "phoneNumber" => u => u.PhoneNumber!,
+            "totalPayment" => u => u.TotalPayment,
+            "totalSpentTime" => u => u.TotalSpentTime,
+            _ => u => u.TotalPayment
+        };
+        
+        res = request.SortOrder switch
+        {
+            "asc" => res.OrderBy(sortBy).ToList(),
+            "desc" => res.OrderByDescending(sortBy).ToList(),
+            _ => res.OrderBy(sortBy).ToList()
+        };
         
         var pagedResult = PagedResult<CustomerResponse>.Create(res, request.CurrentPage, request.PageSize);
         
