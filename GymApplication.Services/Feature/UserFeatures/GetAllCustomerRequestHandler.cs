@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using GymApplication.Repository.Entities;
+using GymApplication.Repository.Repository.Abstraction;
 using GymApplication.Services.Abstractions;
 using GymApplication.Shared.BusinessObject.User.Request;
 using GymApplication.Shared.BusinessObject.User.Response;
@@ -15,11 +16,14 @@ public sealed class GetAllCustomerRequestHandler : IRequestHandler<GetAllCustome
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly ICacheServices _cacheServices;
-
-    public GetAllCustomerRequestHandler(UserManager<ApplicationUser> userManager, ICacheServices cacheServices)
+    private readonly IRepoBase<PaymentLog, Guid> _paymentLogRepo;
+    private readonly IRepoBase<CheckLog, Guid> _checkLogRepo;
+    public GetAllCustomerRequestHandler(UserManager<ApplicationUser> userManager, ICacheServices cacheServices, IRepoBase<CheckLog, Guid> checkLogRepo, IRepoBase<PaymentLog, Guid> paymentLogRepo)
     {
         _userManager = userManager;
         _cacheServices = cacheServices;
+        _checkLogRepo = checkLogRepo;
+        _paymentLogRepo = paymentLogRepo;
     }
 
     public async Task<Result<PagedResult<CustomerResponse>>> Handle(GetAllCustomerRequest request, CancellationToken cancellationToken)
@@ -34,13 +38,27 @@ public sealed class GetAllCustomerRequestHandler : IRequestHandler<GetAllCustome
         }
 
         var users = (await _userManager.GetUsersInRoleAsync(Role.User.ToString()))
-            .AsQueryable()
-            .AsNoTracking()
-            .Include(x => x.Payments)
-            .ThenInclude(x => x.UserSubscriptions)
-            .Include(u => u.CheckLogs)
-            .AsSplitQuery()
-            .Where(u => u.IsDeleted == false);
+            .Where(u => u.IsDeleted == false)
+            .ToList();
+        
+        var userIds = users.Select(u => u.Id).ToList();
+        
+        var paymentLog = await _paymentLogRepo
+            .GetByConditionsAsync(l => userIds.Contains(l.UserId), [l => l.UserSubscriptions]);
+        
+        var checkLog = await _checkLogRepo
+            .GetByConditionsAsync(l => userIds.Contains(l.UserId));
+
+        var usersWithPayment = users.Select(u => new ApplicationUser()
+        {
+            Id = u.Id,
+            Email = u.Email,
+            FullName = u.FullName,
+            PhoneNumber = u.PhoneNumber,
+            UserName = u.UserName,
+            Payments = paymentLog.Where(l => l.UserId == u.Id).ToList(),
+            CheckLogs = checkLog.Where(l => l.UserId == u.Id).ToList()
+        }).AsQueryable();
         
         Expression<Func<ApplicationUser, object>> sortBy = request.SortBy switch
         {
@@ -51,11 +69,11 @@ public sealed class GetAllCustomerRequestHandler : IRequestHandler<GetAllCustome
             _ => u => u.Email!
         };
         
-        users = request.SortOrder switch
+        usersWithPayment = request.SortOrder switch
         {
-            "asc" => users.OrderBy(sortBy),
-            "desc" => users.OrderByDescending(sortBy),
-            _ => users.OrderBy(sortBy)
+            "asc" => usersWithPayment.OrderBy(sortBy),
+            "desc" => usersWithPayment.OrderByDescending(sortBy),
+            _ => usersWithPayment.OrderBy(sortBy)
         };
         
         Expression<Func<ApplicationUser, bool>> searchBy = request.SearchBy switch
@@ -69,10 +87,10 @@ public sealed class GetAllCustomerRequestHandler : IRequestHandler<GetAllCustome
         
         if (!string.IsNullOrEmpty(request.Search))
         {
-            users = users.Where(searchBy);
+            usersWithPayment = usersWithPayment.Where(searchBy);
         }
 
-        var res = users.Select(u => new CustomerResponse()
+        var res = usersWithPayment.Select(u => new CustomerResponse()
         {
             Id = u.Id,
             Email = u.Email,
@@ -86,7 +104,7 @@ public sealed class GetAllCustomerRequestHandler : IRequestHandler<GetAllCustome
         
         var pagedResult = PagedResult<CustomerResponse>.Create(res, request.CurrentPage, request.PageSize);
         
-        await _cacheServices.SetAsync(redisKey, pagedResult, cancellationToken);
+        await _cacheServices.SetAsync(redisKey, pagedResult, TimeSpan.FromMinutes(5), cancellationToken);
         
         return Result.Success(pagedResult);
     }
