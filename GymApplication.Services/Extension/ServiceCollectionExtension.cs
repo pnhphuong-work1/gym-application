@@ -4,6 +4,7 @@ using GymApplication.Services.Authentication;
 using GymApplication.Services.Behaviors;
 using GymApplication.Services.Caching;
 using GymApplication.Services.Mapper;
+using GymApplication.Services.Payment;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,6 +61,7 @@ public static class ServiceCollectionExtension
     private static IServiceCollection AddJwtService(this IServiceCollection services)
     {
         services.AddTransient<IJwtServices, JwtServices>();
+        services.AddScoped<IPayOsServices, PayOsServices>();
         return services;
     }
 }

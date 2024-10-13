@@ -25,9 +25,8 @@ public class UserController : RestController
 
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(Result<PagedResult<UserResponse>>))]
-    public async Task<IResult> Get([FromQuery] GetAllUserRequest request)
+    public async Task<IResult> Get([FromQuery] GetAllCustomerRequest request)
     {
-        request.Role = Role.User;
         var result = await _mediator.Send(request);
         
         return result.IsSuccess 

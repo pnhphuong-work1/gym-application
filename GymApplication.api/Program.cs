@@ -1,11 +1,16 @@
 using GymApplication.api.Attribute;
 using GymApplication.api.Extension;
 using GymApplication.api.Middleware;
+using GymApplication.Repository.Entities;
 using GymApplication.Repository.Extension;
+using GymApplication.Repository.Repository;
+using GymApplication.Repository.Repository.Abstraction;
 using GymApplication.Services.Extension;
+using GymApplication.Shared.Emuns;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Serialization;
+using UUIDNext;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,7 +25,8 @@ builder.Services.AddControllers()
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services
     .AddApiVersionForController();
-
+builder.Services.AddTransient<IRepoBase<Subscription, Guid>, RepoBase<Subscription, Guid>>();
+builder.Services.AddTransient<IRepoBase<DayGroup, Guid>, RepoBase<DayGroup, Guid>>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -71,5 +77,33 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.Lifetime.ApplicationStarted.Register(async () =>
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+    var user = await userManager.FindByNameAsync("admin@gmail.com");
+    if (user is not null) return;
+    var newUser = new ApplicationUser()
+    {
+        Id = Uuid.NewDatabaseFriendly(Database.PostgreSql),
+        UserName = "admin@gmail.com",
+        PhoneNumber = "0123456789",
+        Email = "admin@gmail.com",
+        FullName = "Admin",
+        CreatedAt = DateTime.UtcNow,
+        DateOfBirth = DateOnly.Parse("2003-03-21")
+    };
+    var result = await userManager.CreateAsync(newUser, "Admin@123");
+    if (result.Succeeded)
+    {
+        await roleManager.CreateAsync(new ApplicationRole()
+        {
+            Name = Role.Admin.ToString()
+        });
+        await userManager.AddToRoleAsync(newUser, Role.Admin.ToString());
+    }
+});
 
 app.Run();

@@ -32,5 +32,10 @@ public class PaymentLogConfiguration : IEntityTypeConfiguration<PaymentLog>
         builder.Property(e => e.UpdatedAt);
         
         builder.Property(e => e.DeletedAt);
+        
+        builder.HasMany(e => e.UserSubscriptions)
+            .WithOne(e => e.Payment)
+            .HasForeignKey(e => e.PaymentId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }
