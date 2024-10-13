@@ -8,7 +8,7 @@ namespace GymApplication.Shared.BusinessObject.Subscription.Request;
 public sealed class CreateSubscriptionRequest : IRequest<Result<SubscriptionResponse>>
 {
     public string Name { get; set; }
-    public TimeSpan TotalWorkoutTime { get; set; }
+    public string TotalWorkoutTime { get; set; }
     public decimal Price { get; set; }
     public string Group { get; set; }
 }

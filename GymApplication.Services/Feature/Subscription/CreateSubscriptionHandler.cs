@@ -48,7 +48,7 @@ public class CreateSubscriptionHandler : IRequestHandler<CreateSubscriptionReque
             Id = Uuid.NewDatabaseFriendly(Database.PostgreSql),
             Name = request.Name,
             Price = request.Price,
-            TotalWorkoutTime = request.TotalWorkoutTime,
+            TotalWorkoutTime = TimeOnly.Parse(request.TotalWorkoutTime),
             DayGroupId = dayGroup.Id,
             CreatedAt = DateTime.UtcNow
         };
