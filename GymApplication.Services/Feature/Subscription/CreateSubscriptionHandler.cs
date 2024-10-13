@@ -6,23 +6,21 @@ using GymApplication.Repository.Repository.Abstraction;
 using GymApplication.Services.Abstractions;
 using GymApplication.Shared.BusinessObject.Subscription.Request;
 using GymApplication.Shared.BusinessObject.Subscription.Respone;
-using GymApplication.Shared.BusinessObject.User.Request;
-using GymApplication.Shared.BusinessObject.User.Response;
 using GymApplication.Shared.Common;
 using MediatR;
 using UUIDNext;
 
-namespace GymApplication.Services.Feature.SubcriptionFeatures;
+namespace GymApplication.Services.Feature.Subscription;
 
 public class CreateSubscriptionHandler : IRequestHandler<CreateSubscriptionRequest, Result<SubscriptionResponse>>
 {
-    private readonly IRepoBase<Subscription, Guid> _subscriptionRepository;
+    private readonly IRepoBase<Repository.Entities.Subscription, Guid> _subscriptionRepository;
     private readonly IRepoBase<DayGroup, Guid> _dayGroupRepository;
     private readonly IMapper _mapper;
     private readonly ICacheServices _cacheServices;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CreateSubscriptionHandler(IRepoBase<Subscription, Guid> subscriptionRepository, IMapper mapper,
+    public CreateSubscriptionHandler(IRepoBase<Repository.Entities.Subscription, Guid> subscriptionRepository, IMapper mapper,
         ICacheServices cacheServices, IRepoBase<DayGroup, Guid> dayGroupRepository, IUnitOfWork unitOfWork)
     {
         _subscriptionRepository = subscriptionRepository;
@@ -32,7 +30,7 @@ public class CreateSubscriptionHandler : IRequestHandler<CreateSubscriptionReque
         _unitOfWork = unitOfWork;
     }
 
-    public Task<Result<SubscriptionResponse>> Handle(CreateSubscriptionRequest request,
+    public async Task<Result<SubscriptionResponse>> Handle(CreateSubscriptionRequest request,
         CancellationToken cancellationToken)
     {
         var dayGroup = _dayGroupRepository.GetByConditionsAsync(
@@ -43,9 +41,9 @@ public class CreateSubscriptionHandler : IRequestHandler<CreateSubscriptionReque
         if (dayGroup == null)
         {
             var error = new Error("DayGroup not found", $"DayGroup '{request.Group}' not found.");
-            return Task.FromResult(Result.Failure<SubscriptionResponse>(error));
+            return Result.Failure<SubscriptionResponse>(error);
         }
-        var subscription = new Subscription()
+        var subscription = new Repository.Entities.Subscription()
         {
             Id = Uuid.NewDatabaseFriendly(Database.PostgreSql),
             Name = request.Name,
@@ -55,13 +53,19 @@ public class CreateSubscriptionHandler : IRequestHandler<CreateSubscriptionReque
             CreatedAt = DateTime.UtcNow
         };
         _subscriptionRepository.Add(subscription);
-        _unitOfWork.SaveChangesAsync(cancellationToken);
-
+        
+        var result = await _unitOfWork.SaveChangesAsync(cancellationToken);
+        if (!result)
+        {
+            Error error = new("500", "Failed to create subscription");
+            return Result.Failure<SubscriptionResponse>(error);
+        }
+        
         var response = _mapper.Map<SubscriptionResponse>(subscription);
         response.Group = dayGroup.Group;
 
         _cacheServices.SetAsync(subscription.Id.ToString(), response, TimeSpan.FromMinutes(5), cancellationToken).Wait();
 
-        return Task.FromResult(Result.Success(response));
+        return Result.Success(response);
     }
 }

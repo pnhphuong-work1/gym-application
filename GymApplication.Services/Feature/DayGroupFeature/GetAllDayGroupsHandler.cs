@@ -16,39 +16,47 @@ public sealed class GetAllDayGroupsHandler : IRequestHandler<GetAllDayGroupsRequ
 {
     private readonly IRepoBase<DayGroup, Guid> _dayGroupRepository;
     private readonly IMapper _mapper;
-    private readonly ICacheServices _cacheServices;
 
-    public GetAllDayGroupsHandler(IRepoBase<DayGroup, Guid> dayGroupRepository, IMapper mapper,
-        ICacheServices cacheServices)
+    public GetAllDayGroupsHandler(IRepoBase<DayGroup, Guid> dayGroupRepository, IMapper mapper)
     {
         _dayGroupRepository = dayGroupRepository;
         _mapper = mapper;
-        _cacheServices = cacheServices;
     }
 
     public async Task<Result<PagedResult<DayGroupResponse>>> Handle(GetAllDayGroupsRequest request,
         CancellationToken cancellationToken)
     {
-        var redisKey = $"GetAllDayGroups:{request.CurrentPage}:{request.PageSize}:{request.Search}";
-
-        var cache = await _cacheServices.GetAsync<PagedResult<DayGroupResponse>>(redisKey, cancellationToken);
-
-        if (cache is not null)
-        {
-            return Result.Success(cache);
-        }
-
         var dayGroups = _dayGroupRepository.GetQueryable()
             .Where(s => s.IsDeleted == false);
+        Expression<Func<DayGroup, object>> sortBy = request.SortBy switch
+        {
+            "group" => d => d.Group,
+            "createdAt" => d => d.CreatedAt,
+        };
+        
+        dayGroups = request.SortOrder switch
+        {
+            "asc" => dayGroups.OrderBy(sortBy),
+            "desc" => dayGroups.OrderByDescending(sortBy),
+            _ => dayGroups.OrderBy(sortBy)
+        };
+        
+        Expression<Func<DayGroup, bool>> searchBy = request.SearchBy switch
+        {
+            "group" => d => d.Group.Contains(request.Search!),
+            "createdAt" => l => l.CreatedAt.ToString().Contains(request.Search!),
+        };
+        
+        if (!string.IsNullOrEmpty(request.Search))
+        {
+            dayGroups = dayGroups.Where(searchBy);
+        }
 
         var list = await PagedResult<DayGroup>.CreateAsync(dayGroups,
             request.CurrentPage,
             request.PageSize);
 
         var response = _mapper.Map<PagedResult<DayGroupResponse>>(list);
-
-        await _cacheServices.SetAsync(redisKey, response, TimeSpan.FromMinutes(5), cancellationToken);
-
         return Result.Success(response);
     }
 }

@@ -21,10 +21,10 @@ public class CreateCheckLogsHandler : IRequestHandler<CreateCheckLogsRequest, Re
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IRepoBase<UserSubscription, Guid> _userSubscriptionRepo;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IRepoBase<Subscription, Guid> _subscriptionRepo;
+    private readonly IRepoBase<Repository.Entities.Subscription, Guid> _subscriptionRepo;
     private readonly ICacheServices _cacheServices;
 
-    public CreateCheckLogsHandler(IRepoBase<CheckLog, Guid> checkLogRepo, IMapper mapper, UserManager<ApplicationUser> userManager, IRepoBase<UserSubscription, Guid> userSubscriptionRepo, IUnitOfWork unitOfWork, IRepoBase<Subscription, Guid> subscriptionRepo, ICacheServices cacheServices)
+    public CreateCheckLogsHandler(IRepoBase<CheckLog, Guid> checkLogRepo, IMapper mapper, UserManager<ApplicationUser> userManager, IRepoBase<UserSubscription, Guid> userSubscriptionRepo, IUnitOfWork unitOfWork, IRepoBase<Repository.Entities.Subscription, Guid> subscriptionRepo, ICacheServices cacheServices)
     {
         _checkLogRepo = checkLogRepo;
         _mapper = mapper;
