@@ -98,7 +98,7 @@ public sealed class GetAllCustomerRequestHandler : IRequestHandler<GetAllCustome
             PhoneNumber = u.PhoneNumber,
             UserName = u.UserName,
             TotalPayment = u.Payments.Select(x => x.UserSubscriptions.Sum(x => x.PaymentPrice)).Sum(),
-            TotalSendTime = u.CheckLogs.Where(x => x.CheckStatus == LogsStatus.CheckOut.ToString())
+            TotalSpentTime = u.CheckLogs.Where(x => x.CheckStatus == LogsStatus.CheckOut.ToString())
                 .Sum(x => x.WorkoutTime!.Value.Hour),
         }).ToList();
         

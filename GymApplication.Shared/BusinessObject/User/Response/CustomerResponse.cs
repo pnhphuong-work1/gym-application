@@ -7,6 +7,6 @@ public sealed class CustomerResponse
     public string FullName { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
-    public int TotalSendTime { get; set; }
+    public int TotalSpentTime { get; set; }
     public decimal TotalPayment { get; set; }
 }
