@@ -32,7 +32,7 @@ public sealed class UpdateSubscriptionHandler : IRequestHandler<UpdateSubscripti
 
         subscription.Name = request.Name;
         subscription.Price = request.Price;
-        subscription.TotalWorkoutTime = request.TotalWorkoutTime;
+        subscription.TotalWorkoutTime = TimeOnly.Parse(request.TotalWorkoutTime);
         subscription.UpdatedAt = DateTime.Now;
 
         _subscriptionRepository.Update(subscription);
