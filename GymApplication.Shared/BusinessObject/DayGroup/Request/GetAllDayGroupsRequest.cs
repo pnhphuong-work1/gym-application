@@ -8,10 +8,12 @@ namespace GymApplication.Shared.BusinessObject.DayGroups.Request;
 
 public sealed class GetAllDayGroupsRequest : IRequest<Result<PagedResult<DayGroupResponse>>>
 {
-    public int CurrentPage { get; set; }
-    public int PageSize { get; set; }
-    
+    public int CurrentPage { get; set; } = 1;
+    public int PageSize { get; set; } = 10;
     public string? Search { get; set; }
+    public string? SearchBy { get; set; } = "group";
+    public string SortOrder { get; set; } = "desc";
+    public string? SortBy { get; set; } = "createdAt";
 }
 
 public sealed class GetAllDayGroupsRequestValidation : AbstractValidator<GetAllDayGroupsRequest>

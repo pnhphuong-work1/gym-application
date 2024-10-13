@@ -5,7 +5,7 @@ public sealed class SubscriptionResponse
 {
     public Guid Id { get; set; }
     public string Name { get; set; }
-    public TimeSpan TotalWorkoutTime { get; set; }
+    public TimeOnly? TotalWorkoutTime { get; set; }
     public decimal Price { get; set; }
     public Guid DayGroupId { get; set; }
     public string Group { get; set; }

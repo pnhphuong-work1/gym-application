@@ -38,7 +38,7 @@ public sealed class CreatePaymentHandler : IRequestHandler<CreatePaymentRequest,
             return Result.Failure<PaymentResponse>(error);
         }
         // var sub = await _subscriptionRepository.GetEntityByConditionAsync(s => s.Id == request.SubscriptionId, false, cancellationToken);
-        var sub = new Subscription()
+        var sub = new Repository.Entities.Subscription()
         {
             Id = Uuid.NewDatabaseFriendly(Database.PostgreSql),
             Price = 1000,
