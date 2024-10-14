@@ -55,6 +55,7 @@ public sealed class GetAllCustomerRequestHandler : IRequestHandler<GetAllCustome
             Email = u.Email,
             FullName = u.FullName,
             PhoneNumber = u.PhoneNumber,
+            DateOfBirth = u.DateOfBirth,
             UserName = u.UserName,
             Payments = paymentLog.Where(l => l.UserId == u.Id).ToList(),
             CheckLogs = checkLog.Where(l => l.UserId == u.Id).ToList()
@@ -79,6 +80,7 @@ public sealed class GetAllCustomerRequestHandler : IRequestHandler<GetAllCustome
             Email = u.Email,
             FullName = u.FullName,
             PhoneNumber = u.PhoneNumber,
+            DateOfBirth = u.DateOfBirth,
             UserName = u.UserName,
             TotalPayment = u.Payments.Select(x => x.UserSubscriptions.Sum(x => x.PaymentPrice)).Sum(),
             TotalSpentTime = u.CheckLogs.Where(x => x.CheckStatus == LogsStatus.CheckOut.ToString())
