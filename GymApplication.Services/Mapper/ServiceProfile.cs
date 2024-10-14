@@ -4,6 +4,7 @@ using GymApplication.Shared.BusinessObject.DayGroups.Respone;
 using GymApplication.Shared.BusinessObject.Subscription.Respone;
 using GymApplication.Shared.BusinessObject.CheckLogs.Response;
 using GymApplication.Shared.BusinessObject.Payment.Response;
+using GymApplication.Shared.BusinessObject.SubscriptionUser.Response;
 using GymApplication.Shared.BusinessObject.User.Response;
 using GymApplication.Shared.Common;
 
@@ -39,6 +40,11 @@ public class ServiceProfile : Profile
             .ReverseMap();
 
         CreateMap<PagedResult<DayGroup>, PagedResult<DayGroupResponse>>()
+            .ReverseMap();
+        
+        CreateMap<UserSubscription, SubscriptionUserResponse>()
+            .ReverseMap();
+        CreateMap<PagedResult<UserSubscription>, PagedResult<SubscriptionUserResponse>>()
             .ReverseMap();
     }
 }
