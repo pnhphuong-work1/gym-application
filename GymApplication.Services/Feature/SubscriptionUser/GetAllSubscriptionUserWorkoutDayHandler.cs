@@ -1,4 +1,5 @@
-﻿using GymApplication.Repository.Entities;
+﻿using System.Collections;
+using GymApplication.Repository.Entities;
 using GymApplication.Repository.Repository.Abstraction;
 using GymApplication.Shared.BusinessObject.SubscriptionUser.Request;
 using GymApplication.Shared.BusinessObject.SubscriptionUser.Response;
@@ -33,11 +34,83 @@ public class GetAllSubscriptionUserWorkoutDayHandler
         var getAllSubsUserParams = new GetSubscriptionUserByUserIdRequest(request.Id);
         var allSubs = await _sender.Send(getAllSubsUserParams);
 
-        var dayOfWeek = new List<string>();
+        
         foreach (var sub in allSubs.Value)
         {
-            
+            var targetDays = GetTargetDays(sub.Group);
+            workoutDays.AddRange(GetDaysOfWeekInRange(
+                sub.SubscriptionStartDate,
+                sub.SubscriptionEndDate,
+                targetDays,
+                sub.Name,
+                new TimeOnly(10,10)));
         }
-        return Result.Success<List<WorkoutDayResponse>>(workoutDays);
+        
+        return Result.Success(workoutDays);
+    }
+    
+    //This is a recursion function, use with caution
+    private List<WorkoutDayResponse> GetDaysOfWeekInRange(
+        DateTime startDate,
+        DateTime endDate,
+        List<DayOfWeek> targetDays,
+        string title,
+        TimeOnly workoutTime)
+    {
+        var workoutDays = new List<WorkoutDayResponse>();
+        var current = DateOnly.FromDateTime(startDate);
+        //If no more targetDay -> Break 
+        if (targetDays.Count == 0)
+        {
+            return workoutDays;
+        }
+        //Else continue
+        var target = targetDays.First();
+        
+        while (current.DayOfWeek != target)
+        {
+            current = current.AddDays(1);
+        }
+        //After current == targetDay, Add that event and forward to next week
+        while (current <= DateOnly.FromDateTime(endDate))
+        {
+            workoutDays.Add(new()
+            {
+                Title = title,
+                Start = current.ToDateTime(workoutTime),
+            });
+            current = current.AddDays(7);
+        }
+        targetDays.Remove(target);
+        workoutDays.AddRange(GetDaysOfWeekInRange(startDate, endDate, targetDays, title, workoutTime));
+        return workoutDays;
+    }
+
+    private List<DayOfWeek> GetTargetDays(string group)
+    {
+        var targetDays = new List<DayOfWeek>();
+        group.Split(", ").ToList().ForEach(
+            day =>
+            {
+                switch (day)
+                {
+                    case "T2": targetDays.Add(DayOfWeek.Monday);
+                        break;
+                    case "T3": targetDays.Add(DayOfWeek.Tuesday);
+                        break;
+                    case "T4": targetDays.Add(DayOfWeek.Wednesday);
+                        break;
+                    case "T5": targetDays.Add(DayOfWeek.Thursday);
+                        break;
+                    case "T6": targetDays.Add(DayOfWeek.Friday);
+                        break;
+                    case "T7": targetDays.Add(DayOfWeek.Saturday);
+                        break;
+                    case "CN": targetDays.Add(DayOfWeek.Sunday);
+                        break;
+                    default: break;
+                }
+            });
+        return targetDays;
     }
 }

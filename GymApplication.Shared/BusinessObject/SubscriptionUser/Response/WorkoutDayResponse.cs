@@ -3,5 +3,5 @@
 public class WorkoutDayResponse
 {
     public string Title {get; set;} = string.Empty;
-    public DateOnly WorkoutDay { get; set; }
+    public DateTime Start { get; set; }
 }
