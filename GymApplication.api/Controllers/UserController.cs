@@ -34,12 +34,12 @@ public class UserController : RestController
             : HandlerFailure(result);
     }
     
-    [HttpGet("{id:guid}", Name = "GetUserById")]
-    [ProducesResponseType(200, Type = typeof(Result<UserResponse>))]
+    [HttpGet("{id:guid}", Name = "GetCustomerById")]
+    [ProducesResponseType(200, Type = typeof(Result<CustomerResponse>))]
     [ProducesResponseType(404, Type = typeof(Result))]
     public async Task<IResult> GetUserById(Guid id)
     {
-        var request = new GetUserById(id);
+        var request = new GetCustomerById() { Id = id };
         var result = await _mediator.Send(request);
         return result.IsSuccess 
             ? Results.Ok(result) 
