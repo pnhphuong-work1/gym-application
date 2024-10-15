@@ -50,7 +50,7 @@ public class CreateSubscriptionHandler : IRequestHandler<CreateSubscriptionReque
             Price = request.Price,
             TotalWorkoutTime = TimeOnly.Parse(request.TotalWorkoutTime),
             DayGroupId = dayGroup.Id,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow.AddHours(7)
         };
         _subscriptionRepository.Add(subscription);
         
