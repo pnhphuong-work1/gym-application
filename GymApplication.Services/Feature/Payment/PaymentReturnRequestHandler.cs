@@ -52,7 +52,7 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
             paymentLog.PaymentStatus = PaymentStatus.Cancel.ToString();
             _paymentLogRepository.Update(paymentLog);
         } 
-        else if (request.Status == "Success")
+        else if (request.Status == "PAID")
         {
             paymentLog.PaymentStatus = PaymentStatus.Success.ToString();
             _paymentLogRepository.Update(paymentLog);
@@ -65,7 +65,12 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
                 SubscriptionEndDate = paymentLog.PaymentDate.AddDays(30)
             };
             
-            await _sender.Send(createUserSubscriptionRequest, cancellationToken);
+            var result = await _sender.Send(createUserSubscriptionRequest, cancellationToken);
+            
+            if (result.IsFailure)
+            {
+                return Result.Failure<PaymentReturnResponse>(result.Error);
+            }
         }
         
         await _unitOfWork.SaveChangesAsync(cancellationToken);
