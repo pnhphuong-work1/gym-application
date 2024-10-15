@@ -74,7 +74,7 @@ public sealed class CreateSubscriptionUserHandler : IRequestHandler<CreateSubscr
             PaymentPrice = request.PaymentPrice,
             WorkoutSteak = request.WorkoutSteak ?? 0,
             LongestWorkoutSteak = request.LongestWorkoutSteak ?? 0,
-            LastWorkoutDate = request.LastWorkoutDate ?? DateTime.UtcNow,
+            LastWorkoutDate = request.LastWorkoutDate ?? DateTime.UtcNow.AddHours(7),
             SubscriptionEndDate = request.SubscriptionEndDate.Date.ToUniversalTime(),
             IsDeleted = false,
             CreatedAt = DateTime.UtcNow
@@ -90,19 +90,20 @@ public sealed class CreateSubscriptionUserHandler : IRequestHandler<CreateSubscr
             return Result.Failure<SubscriptionUserResponse>(error);
         }
 
-        var response = new SubscriptionUserResponse()
-        {
-            Id = newSubscriptionUser.Id,
-            UserId = newSubscriptionUser.UserId,
-            PaymentId = newSubscriptionUser.PaymentId,
-            SubscriptionId = newSubscriptionUser.SubscriptionId,
-            PaymentPrice = newSubscriptionUser.PaymentPrice,
-            WorkoutSteak = newSubscriptionUser.WorkoutSteak,
-            LongestWorkoutSteak = newSubscriptionUser.LongestWorkoutSteak,
-            LastWorkoutDate = newSubscriptionUser.LastWorkoutDate,
-            SubscriptionEndDate = newSubscriptionUser.SubscriptionEndDate
-        };
-        //var response = _mapper.Map<SubscriptionUserResponse>(newSubscriptionUser);
+        // var response = new SubscriptionUserResponse()
+        // {
+        //     Id = newSubscriptionUser.Id,
+        //     UserId = newSubscriptionUser.UserId,
+        //     PaymentId = newSubscriptionUser.PaymentId,
+        //     SubscriptionId = newSubscriptionUser.SubscriptionId,
+        //     PaymentPrice = newSubscriptionUser.PaymentPrice,
+        //     WorkoutSteak = newSubscriptionUser.WorkoutSteak,
+        //     LongestWorkoutSteak = newSubscriptionUser.LongestWorkoutSteak,
+        //     LastWorkoutDate = newSubscriptionUser.LastWorkoutDate,
+        //     SubscriptionEndDate = newSubscriptionUser.SubscriptionEndDate
+        // };
+        
+        var response = _mapper.Map<SubscriptionUserResponse>(newSubscriptionUser);
         return Result.Success(response);
     }
 }

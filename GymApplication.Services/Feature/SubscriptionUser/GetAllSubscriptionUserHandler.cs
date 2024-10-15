@@ -27,6 +27,7 @@ public class GetAllSubscriptionUserHandler
     {
         var subscriptions = _userSubscriptionRepo.GetQueryable()
             .Include(su => su.Subscription)
+                .ThenInclude(sub => sub.DayGroup)
             .Include(su => su.User)
             .Where(s => s.IsDeleted == false);
         Expression<Func<UserSubscription, object>> sortBy = request.SortBy switch
@@ -49,11 +50,17 @@ public class GetAllSubscriptionUserHandler
             "userName" => s => s.User.UserName.Contains(request.Search!),
             "paymentPrice" => s => s.PaymentPrice.Equals(request.Search!),
             "createdAt" => l => l.CreatedAt.ToString().Contains(request.Search!),
+            "exactUserId" => s => s.UserId.ToString() == request.Search,
         };
 
         if (!string.IsNullOrEmpty(request.Search))
         {
             subscriptions = subscriptions.Where(searchBy);
+            if (request.SearchBy == "exactUserId" && !subscriptions.Any())
+            {
+                var error = new Error("404", "User Not Found");
+                return Result.Failure<PagedResult<SubscriptionUserResponse>>(error);
+            }
         }
         
         var list = await PagedResult<UserSubscription>.CreateAsync(subscriptions,
