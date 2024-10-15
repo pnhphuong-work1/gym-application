@@ -14,7 +14,7 @@ namespace GymApplication.Services.Feature.SubscriptionUser;
 
 public sealed class CreateSubscriptionUserHandler : IRequestHandler<CreateSubscriptionUserRequest, Result<SubscriptionUserResponse>>
 {
-    private readonly IRepoBase<UserSubscription, Guid> _subscriptionUserRepo;
+    private readonly IUserSubscriptionRepository _subscriptionUserRepo;
     private readonly IRepoBase<Repository.Entities.Subscription, Guid> _subscriptionRepo;
     private readonly IPaymentLogRepository _paymentLogRepo;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -22,7 +22,7 @@ public sealed class CreateSubscriptionUserHandler : IRequestHandler<CreateSubscr
     private readonly IMapper _mapper;
     private readonly IPublisher _publisher;
 
-    public CreateSubscriptionUserHandler(IRepoBase<UserSubscription, Guid> subscriptionUserRepo, IRepoBase<Repository.Entities.Subscription, Guid> subscriptionRepo, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IPaymentLogRepository paymentLogRepo, IMapper mapper, IPublisher publisher)
+    public CreateSubscriptionUserHandler(IUserSubscriptionRepository subscriptionUserRepo, IRepoBase<Repository.Entities.Subscription, Guid> subscriptionRepo, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IPaymentLogRepository paymentLogRepo, IMapper mapper, IPublisher publisher)
     {
         _subscriptionUserRepo = subscriptionUserRepo;
         _subscriptionRepo = subscriptionRepo;

@@ -11,6 +11,7 @@ public sealed class SubscriptionUserResponse
     public int LongestWorkoutSteak { get; set; }
     public DateTime LastWorkoutDate { get; set; }
     public DateTime SubscriptionEndDate { get; set; }
+    public DateTime SubscriptionStartDate { get; set; }
     public string? Group { get; set; }
     public TimeOnly? TotalWorkoutTime { get; set; }
     public string Name { get; set; }

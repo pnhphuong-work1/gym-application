@@ -41,7 +41,7 @@ public class SubscriptionUserController : RestController
             ? Results.Ok(result) 
             : HandlerFailure(result);
     }
-    [HttpGet("user/{userId:guid}" ,Name = "GetSubscriptionUserByUserId")]
+    [HttpGet("{userId:guid}/user-subscriptions" ,Name = "GetSubscriptionUserByUserId")]
     [ProducesResponseType(200, Type = typeof(Result<SubscriptionUserResponse>))]
     [ProducesResponseType(404, Type = typeof(Result))]
     public async Task<IResult> GetSubscriptionUserByUserId(Guid userId)
@@ -52,6 +52,18 @@ public class SubscriptionUserController : RestController
             ? Results.Ok(result) 
             : HandlerFailure(result);
     }
+    [HttpGet("{userId:guid}/workout-days" ,Name = "GetSubscriptionUserWorkoutDaysByUserId")]
+    [ProducesResponseType(200, Type = typeof(Result<WorkoutDayResponse>))]
+    [ProducesResponseType(404, Type = typeof(Result))]
+    public async Task<IResult> GetSubscriptionUserWorkoutDaysByUserId(Guid userId)
+    {
+        var request = new GetAllSubscriptionUserWorkoutDayRequest(userId); 
+        var result = await _mediator.Send(request);
+        return result.IsSuccess 
+            ? Results.Ok(result) 
+            : HandlerFailure(result);
+    }
+    
     
     [HttpPost]
     [ProducesResponseType(201, Type = typeof(Result<SubscriptionUserResponse>))]

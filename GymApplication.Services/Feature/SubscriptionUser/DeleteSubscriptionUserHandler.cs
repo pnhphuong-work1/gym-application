@@ -9,10 +9,10 @@ namespace GymApplication.Services.Feature.SubscriptionUser;
 
 public sealed class DeleteSubscriptionUserHandler : IRequestHandler<DeleteSubscriptionUserRequest, Result>
 {
-    private readonly IRepoBase<Repository.Entities.UserSubscription, Guid> _subscriptionRepository;
+    private readonly IUserSubscriptionRepository _subscriptionRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteSubscriptionUserHandler(IRepoBase<Repository.Entities.UserSubscription, Guid> subscriptionRepository, IUnitOfWork unitOfWork)
+    public DeleteSubscriptionUserHandler(IUserSubscriptionRepository subscriptionRepository, IUnitOfWork unitOfWork)
     {
         _subscriptionRepository = subscriptionRepository;
         _unitOfWork = unitOfWork;

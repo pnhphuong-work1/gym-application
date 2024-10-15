@@ -13,11 +13,11 @@ namespace GymApplication.Services.Feature.SubscriptionUser;
 public class GetSubscriptionUserByUserIdHandler : IRequestHandler<GetSubscriptionUserByUserIdRequest,
     Result<List<SubscriptionUserResponse>>>
 {
-    private readonly IRepoBase<UserSubscription, Guid> _userSubscriptionRepo;
+    private readonly IUserSubscriptionRepository _userSubscriptionRepo;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IMapper _mapper;
 
-    public GetSubscriptionUserByUserIdHandler(IRepoBase<UserSubscription, Guid> userSubscriptionRepo, IMapper mapper, UserManager<ApplicationUser> userManager)
+    public GetSubscriptionUserByUserIdHandler(IUserSubscriptionRepository userSubscriptionRepo, IMapper mapper, UserManager<ApplicationUser> userManager)
     {
         _userSubscriptionRepo = userSubscriptionRepo;
         _mapper = mapper;
@@ -35,6 +35,7 @@ public class GetSubscriptionUserByUserIdHandler : IRequestHandler<GetSubscriptio
         Expression<Func<UserSubscription, object>>[] includes =
         {
             x => x.Subscription,
+            x => x.Payment,
             x => x.Subscription.DayGroup
         };
         var subsList = await _userSubscriptionRepo
