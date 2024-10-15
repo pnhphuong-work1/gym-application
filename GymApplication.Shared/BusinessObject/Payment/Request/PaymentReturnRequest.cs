@@ -11,4 +11,5 @@ public sealed class PaymentReturnRequest : IRequest<Result<PaymentReturnResponse
     public bool Cancel { get; set; }
     public string Status { get; set; } = string.Empty;
     public long OrderCode { get; set; }
+    public Guid SubscriptionId { get; set; }
 }
