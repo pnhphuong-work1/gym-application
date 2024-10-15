@@ -7,7 +7,7 @@ using MediatR;
 
 namespace GymApplication.Shared.BusinessObject.SubscriptionUser.Request;
 
-public sealed record GetSubscriptionUserByIdRequest(Guid Id) : IRequest<Result<SubscriptionUserResponse>>;
+public sealed record GetSubscriptionUserByIdRequest(Guid Id) :  IRequest<Result<SubscriptionUserResponse>>;
 
 public sealed class GetSubscriptionUserByIdValidation : AbstractValidator<GetSubscriptionUserByIdRequest> {
     public GetSubscriptionUserByIdValidation()

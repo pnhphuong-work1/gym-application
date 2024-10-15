@@ -8,6 +8,7 @@ using GymApplication.Shared.Common;
 using GymApplication.Shared.Emuns;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Net.payOS.Types;
 using UUIDNext;
 
@@ -19,17 +20,22 @@ public sealed class CreatePaymentHandler : IRequestHandler<CreatePaymentRequest,
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPayOsServices _payOsServices;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IRepoBase<Repository.Entities.Subscription, Guid> _subscriptionRepository;
+    private readonly IConfiguration _configuration;
     
-    public CreatePaymentHandler(IPaymentLogRepository paymentLogRepository, IPayOsServices payOsServices, UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork)
+    public CreatePaymentHandler(IPaymentLogRepository paymentLogRepository, IPayOsServices payOsServices, UserManager<ApplicationUser> userManager, IUnitOfWork unitOfWork, IRepoBase<Repository.Entities.Subscription, Guid> subscriptionRepository, IConfiguration configuration)
     {
         _paymentLogRepository = paymentLogRepository;
         _payOsServices = payOsServices;
         _userManager = userManager;
         _unitOfWork = unitOfWork;
+        _subscriptionRepository = subscriptionRepository;
+        _configuration = configuration;
     }
 
     public async Task<Result<PaymentResponse>> Handle(CreatePaymentRequest request, CancellationToken cancellationToken)
     {
+        var baseReturnUrl = _configuration["PayOS:BaseReturnUrl"] ?? throw new ArgumentNullException("ReturnUrl is required");
         var user = await _userManager.FindByIdAsync(request.UserId.ToString());
 
         if (user is null)
@@ -37,21 +43,22 @@ public sealed class CreatePaymentHandler : IRequestHandler<CreatePaymentRequest,
             var error = new Error("404", "User not found");
             return Result.Failure<PaymentResponse>(error);
         }
-        // var sub = await _subscriptionRepository.GetEntityByConditionAsync(s => s.Id == request.SubscriptionId, false, cancellationToken);
-        var sub = new Repository.Entities.Subscription()
+        
+        var sub = await _subscriptionRepository.GetByIdAsync(request.SubscriptionId);
+        
+        if (sub is null)
         {
-            Id = Uuid.NewDatabaseFriendly(Database.PostgreSql),
-            Price = 1000,
-            Name = "Test",
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow,
-        };
+            var error = new Error("404", "Subscription not found");
+            return Result.Failure<PaymentResponse>(error);
+        }
+        
+        var returnUrl = baseReturnUrl + "?subscriptionId=" + request.SubscriptionId;
         
         var items = new List<ItemData>
         {
             new ItemData
             (
-                 sub.Name, 
+                 sub.Name!, 
                  Convert.ToInt32(sub.Price),
                  1
             )
@@ -77,6 +84,8 @@ public sealed class CreatePaymentHandler : IRequestHandler<CreatePaymentRequest,
         var paymentLink = await _payOsServices.CreatePayment(
                 Convert.ToInt32(sub.Price),
                 items,
+                returnUrl,
+                returnUrl,
                 "Mua gói " + sub.Name,
                 orderCode
             );

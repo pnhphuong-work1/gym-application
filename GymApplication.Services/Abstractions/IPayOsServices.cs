@@ -8,6 +8,8 @@ public interface IPayOsServices
     Task<CreatePaymentResult> CreatePayment(
         int totalAmount,
         List<ItemData> paymentItems,
+        string returnUrl,
+        string cancelUrl,
         string description = "",
         long orderCode = 0
     );
