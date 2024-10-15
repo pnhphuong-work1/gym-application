@@ -1,4 +1,6 @@
-﻿namespace GymApplication.Shared.BusinessObject.User.Response;
+﻿using GymApplication.Shared.BusinessObject.Subscription.Respone;
+
+namespace GymApplication.Shared.BusinessObject.User.Response;
 
 public sealed class CustomerResponse
 {
@@ -10,4 +12,5 @@ public sealed class CustomerResponse
     public DateOnly DateOfBirth { get; set; }
     public int TotalSpentTime { get; set; }
     public decimal TotalPayment { get; set; }
+    public List<SubscriptionResponse> Subscriptions { get; set; } = new();
 }
