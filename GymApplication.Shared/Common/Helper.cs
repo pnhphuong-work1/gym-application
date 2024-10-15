@@ -161,4 +161,99 @@ public static class Helper
 
         return emailTemplate;
     }
+
+    public static string GetSubscriptionQRTemplate(string? fullName, string qrLink)
+    {
+        var emailTemplate = """
+               <!DOCTYPE html>
+               <html lang="en">
+               <head>
+                   <meta charset="UTF-8">
+                   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                   <title>QR Code Email</title>
+                   <style>
+                       body {
+                           font-family: Arial, sans-serif;
+                           color: #333;
+                           line-height: 1.6;
+                       }
+                       .container {
+                           width: 100%;
+                           max-width: 600px;
+                           margin: 0 auto;
+                           padding: 20px;
+                       }
+                       .header {
+                           text-align: center;
+                           padding-bottom: 20px;
+                       }
+                       .content {
+                           margin-bottom: 20px;
+                       }
+                       .qr-code {
+                           text-align: center;
+                           padding: 20px;
+                       }
+                       .footer {
+                           text-align: center;
+                           color: #777;
+                           font-size: 12px;
+                       }
+                       .button {
+                           display: inline-block;
+                           padding: 10px 20px;
+                           background-color: #4CAF50;
+                           color: white;
+                           text-decoration: none;
+                           border-radius: 5px;
+                       }
+               	strong {
+               	    color: red;
+               	}
+                   </style>
+               </head>
+               <body>
+                   <div class="container">
+                       <div class="header">
+                           <h2>Your QR Code</br>
+                           of your new subscription
+                           </h2>
+                       </div>
+               
+                       <div class="content">
+                           <p>Dear {{UserName}},</p>
+               
+                           <p>I hope this email finds you well.</p>
+               
+                           <p>As requested, please find your QR code below for <strong>Check-in</strong>. You can use this QR code to identify your subscription and personal account.</p>
+                           
+               	     <div class="qr-code">
+                       	    <img src="{{QrLink}}" alt="QR Code" width="200">
+               	     </div>
+               
+                           <p><strong>How to use the QR code:</strong></p>
+                           <ul>
+                               <li>Open this email on your mobile device or print the QR code below.</li>
+                               <li>Show the code at <strong>Check-in Gate</strong> for quick and easy scanning.</li>
+                           </ul>
+               
+                           <p>If you have any issues using the QR code or need further assistance, feel free to reach out to us at <a href="mailto:support@example.com">support-gymbro@email.com</a>.</p>
+               
+                           <p>Thank you for choosing <strong>[Gym-Bro]</strong>. We look forward to serving you!</p>
+                       </div>
+               
+                       <div class="footer">
+                           <p>Best regards,<br>
+                           GymBro <br>
+                           support-gymbro@email.com</p>
+                       </div>
+                   </div>
+               </body>
+               </html>
+               """;
+        // Replace placeholders with actual values
+        emailTemplate = emailTemplate.Replace("{{UserName}}", fullName);
+        emailTemplate = emailTemplate.Replace("{{QrLink}}", qrLink);
+        return emailTemplate;
+    }
 }
