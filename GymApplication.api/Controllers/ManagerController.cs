@@ -1,6 +1,8 @@
 ﻿using Asp.Versioning;
 using GymApplication.api.Common;
 using GymApplication.Shared.BusinessObject.User.Request;
+using GymApplication.Shared.BusinessObject.User.Response;
+using GymApplication.Shared.Common;
 using GymApplication.Shared.Emuns;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -38,7 +40,19 @@ public class ManagerController : RestController
         request.Role = Role.Manager;
         var result = await _mediator.Send(request);
         return result.IsSuccess 
-            ? Results.CreatedAtRoute("GetUserById", new { id = result.Value.Id }, result) 
+            ? Results.CreatedAtRoute("GetManagerById", new { id = result.Value.Id }, result) 
+            : HandlerFailure(result);
+    }
+    
+    [HttpGet("{id:guid}", Name = "GetManagerById")]
+    [ProducesResponseType(200, Type = typeof(Result<UserResponse>))]
+    [ProducesResponseType(404, Type = typeof(Result))]
+    public async Task<IResult> GetUserById(Guid id)
+    {
+        var request = new GetUserById(id);
+        var result = await _mediator.Send(request);
+        return result.IsSuccess 
+            ? Results.Ok(result) 
             : HandlerFailure(result);
     }
 }
