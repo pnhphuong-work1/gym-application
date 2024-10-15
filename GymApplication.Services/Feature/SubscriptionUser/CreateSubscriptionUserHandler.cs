@@ -2,6 +2,7 @@
 using GymApplication.Repository.Abstractions;
 using GymApplication.Repository.Entities;
 using GymApplication.Repository.Repository.Abstraction;
+using GymApplication.Shared.BusinessObject.Email;
 using GymApplication.Shared.BusinessObject.SubscriptionUser.Request;
 using GymApplication.Shared.BusinessObject.SubscriptionUser.Response;
 using GymApplication.Shared.Common;
@@ -19,8 +20,9 @@ public sealed class CreateSubscriptionUserHandler : IRequestHandler<CreateSubscr
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IPublisher _publisher;
 
-    public CreateSubscriptionUserHandler(IRepoBase<UserSubscription, Guid> subscriptionUserRepo, IRepoBase<Repository.Entities.Subscription, Guid> subscriptionRepo, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IPaymentLogRepository paymentLogRepo, IMapper mapper)
+    public CreateSubscriptionUserHandler(IRepoBase<UserSubscription, Guid> subscriptionUserRepo, IRepoBase<Repository.Entities.Subscription, Guid> subscriptionRepo, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IPaymentLogRepository paymentLogRepo, IMapper mapper, IPublisher publisher)
     {
         _subscriptionUserRepo = subscriptionUserRepo;
         _subscriptionRepo = subscriptionRepo;
@@ -28,6 +30,7 @@ public sealed class CreateSubscriptionUserHandler : IRequestHandler<CreateSubscr
         _userManager = userManager;
         _paymentLogRepo = paymentLogRepo;
         _mapper = mapper;
+        _publisher = publisher;
     }
 
 
@@ -77,9 +80,8 @@ public sealed class CreateSubscriptionUserHandler : IRequestHandler<CreateSubscr
             LastWorkoutDate = request.LastWorkoutDate ?? DateTime.UtcNow.AddHours(7),
             SubscriptionEndDate = request.SubscriptionEndDate.Date.ToUniversalTime(),
             IsDeleted = false,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.UtcNow.AddHours(7)
         };
-        Console.WriteLine(DateTime.UtcNow.Date.AddMonths(1).AddDays(-1));
         //Add to DB
         _subscriptionUserRepo.Add(newSubscriptionUser);
         var isCreated = await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -89,21 +91,19 @@ public sealed class CreateSubscriptionUserHandler : IRequestHandler<CreateSubscr
             Error error = new("500", "Error occur while create subscription for user");
             return Result.Failure<SubscriptionUserResponse>(error);
         }
-
-        // var response = new SubscriptionUserResponse()
-        // {
-        //     Id = newSubscriptionUser.Id,
-        //     UserId = newSubscriptionUser.UserId,
-        //     PaymentId = newSubscriptionUser.PaymentId,
-        //     SubscriptionId = newSubscriptionUser.SubscriptionId,
-        //     PaymentPrice = newSubscriptionUser.PaymentPrice,
-        //     WorkoutSteak = newSubscriptionUser.WorkoutSteak,
-        //     LongestWorkoutSteak = newSubscriptionUser.LongestWorkoutSteak,
-        //     LastWorkoutDate = newSubscriptionUser.LastWorkoutDate,
-        //     SubscriptionEndDate = newSubscriptionUser.SubscriptionEndDate
-        // };
         
         var response = _mapper.Map<SubscriptionUserResponse>(newSubscriptionUser);
+        //Send QR-code to mail after bought Subs
+        
+        
+        var emailContent = new SendMailNotification()
+        {
+            Subject = "Subscription Created",
+            To = existedUser.Email,
+            Body = Helper.GetSubscriptionQRTemplate(existedUser.FullName, "")
+        };
+        _ = _publisher.Publish(emailContent, cancellationToken);
+        
         return Result.Success(response);
     }
 }

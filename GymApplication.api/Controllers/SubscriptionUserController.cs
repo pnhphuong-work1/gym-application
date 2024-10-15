@@ -1,5 +1,6 @@
 ﻿using Asp.Versioning;
 using GymApplication.api.Common;
+using GymApplication.Shared.BusinessObject.Email;
 using GymApplication.Shared.BusinessObject.SubscriptionUser.Request;
 using GymApplication.Shared.BusinessObject.SubscriptionUser.Response;
 using GymApplication.Shared.Common;
@@ -24,9 +25,8 @@ public class SubscriptionUserController : RestController
     public async Task<IResult> Get([FromQuery] GetAllSubscriptionUserRequest request)
     {
         var result = await _mediator.Send(request);
-
-        return result.IsSuccess
-            ? Results.Ok(result)
+        return result.IsSuccess 
+            ? Results.Ok(result) 
             : HandlerFailure(result);
     }
     
@@ -41,6 +41,17 @@ public class SubscriptionUserController : RestController
             ? Results.Ok(result) 
             : HandlerFailure(result);
     }
+    [HttpGet("user/{userId:guid}" ,Name = "GetSubscriptionUserByUserId")]
+    [ProducesResponseType(200, Type = typeof(Result<SubscriptionUserResponse>))]
+    [ProducesResponseType(404, Type = typeof(Result))]
+    public async Task<IResult> GetSubscriptionUserByUserId(Guid userId)
+    {
+        var request = new GetSubscriptionUserByUserIdRequest(userId); 
+        var result = await _mediator.Send(request);
+        return result.IsSuccess 
+            ? Results.Ok(result) 
+            : HandlerFailure(result);
+    }
     
     [HttpPost]
     [ProducesResponseType(201, Type = typeof(Result<SubscriptionUserResponse>))]
@@ -48,10 +59,9 @@ public class SubscriptionUserController : RestController
     public async Task<IResult> Post([FromBody] CreateSubscriptionUserRequest request)
     {
         var result = await _mediator.Send(request);
-
-        return result.IsSuccess
-            ? Results.CreatedAtRoute("GetSubscriptionById", new { id = result.Value.Id }, result)
-            : HandlerFailure(result);
+        return !result.IsSuccess 
+            ? HandlerFailure(result) 
+            : Results.CreatedAtRoute("GetSubscriptionById", new { id = result.Value.Id }, result);
     }
     
     [HttpPut("{id:guid}")]
