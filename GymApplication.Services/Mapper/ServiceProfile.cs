@@ -26,6 +26,7 @@ public class ServiceProfile : Profile
 
         CreateMap<CheckLog, CheckLogsResponse>()
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName))
+            .ForMember(dest => dest.SubscriptionName, opt => opt.MapFrom(src => src.UserSubscription.Subscription.Name))
             .ReverseMap();
 
         CreateMap<PagedResult<CheckLog>, PagedResult<CheckLogsResponse>>()
@@ -44,6 +45,8 @@ public class ServiceProfile : Profile
             .ReverseMap();
         
         CreateMap<UserSubscription, SubscriptionUserResponse>()
+            .ForMember(su => su.SubscriptionStartDate,
+                opt => opt.MapFrom(su => su.Payment.PaymentDate))
             .ForMember(su => su.Group,
                 opt => opt.MapFrom(su => su.Subscription.DayGroup.Group))
             .ForMember(su => su.TotalWorkoutTime,
