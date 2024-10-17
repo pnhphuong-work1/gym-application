@@ -18,21 +18,31 @@ public sealed class GetAllCheckLogsRequestValidation : AbstractValidator<GetAllC
             .WithMessage("PageSize must be greater than 0");
 
         RuleFor(u => u.SortBy)
-            .Must(u => u is "fullName" or "checkStatus" or "createdAt" )
-            .WithMessage("SortBy must be either fullName, checkStatus, createdAt");
+            .Must(u => u is "fullName" or "createdAt" )
+            .WithMessage("SortBy must be either fullName, createdAt");
 
         RuleFor(u => u.SortOrder)
             .Must(u => u is "asc" or "desc")
             .WithMessage("SortOrder must be either asc or desc");
         
         RuleFor(u => u.SearchBy)
-            .Must(u => u is "fullName" or "checkStatus" or "createdAt")
-            .WithMessage("SearchBy must be either fullName, createdAt, checkStatus");
+            .Must(u => u is "fullName" or "subscriptionName")
+            .WithMessage("SearchBy must be either fullName, subscriptionName");
+        
+        RuleFor(u => u.CheckStatus)
+            .Must(u => u is "All" or "CheckIn" or "CheckOut")
+            .WithMessage("CheckStatus must be either All, CheckIn, CheckOut");
+        
+        RuleFor(u => u.TimeFrame)
+            .Must(u => u is "All" or "Today" or "Yesterday" or "ThisWeek" or "ThisMonth" or "90days")
+            .WithMessage("TimeFrame must be either All, Today, Yesterday, ThisWeek, ThisMonth, 90days");
     }
 }
 
 public sealed class GetAllCheckLogsRequest : IRequest<Result<PagedResult<CheckLogsResponse>>>
 {
+    public string? CheckStatus { get; set; } = "All";
+    public string? TimeFrame { get; set; } = "All";
     public string? Search { get; set; }
     public string? SearchBy { get; set; } = "fullName";
     public string SortOrder { get; set; } = "desc";

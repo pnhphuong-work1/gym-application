@@ -4,7 +4,9 @@ using GymApplication.api.Common;
 using GymApplication.Shared.BusinessObject.CheckLogs.Request;
 using GymApplication.Shared.BusinessObject.CheckLogs.Response;
 using GymApplication.Shared.Common;
+using GymApplication.Shared.Emuns;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymApplication.api.Controllers;
@@ -24,6 +26,7 @@ public class CheckLogsController : RestController
     [HttpGet]
     [ProducesResponseType(200, Type = typeof(Result<PagedResult<CheckLogsResponse>>))]
     //[ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
+    [Authorize(Roles = "Manager")]
     public async Task<IResult> Get([FromQuery] GetAllCheckLogsRequest request)
     {
         var result = await _mediator.Send(request);
@@ -36,6 +39,7 @@ public class CheckLogsController : RestController
     [HttpGet("{id:guid}", Name = "GetCheckLogById")]
     [ProducesResponseType(200, Type = typeof(Result<CheckLogsResponse>))]
     [ProducesResponseType(404, Type = typeof(Result))]
+    [Authorize(Roles = "Manager,User")]
     public async Task<IResult> GetCheckLogById(Guid id)
     {
         var request = new GetCheckLogsByIdRequest(id);
@@ -60,6 +64,7 @@ public class CheckLogsController : RestController
     [HttpPut("{id:guid}")]
     //[ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Put))]
     [ProducesResponseType(200, Type = typeof(Result))]
+    [Authorize(Roles = "Manager")]
     public async Task<IResult> Put(Guid id, UpdateCheckLogsRequest request)
     {
         var result = await _mediator.Send(request);
@@ -69,6 +74,7 @@ public class CheckLogsController : RestController
     }
     
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Manager")]
     //[ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Delete))]
     [ProducesResponseType(200, Type = typeof(Result))]
     [ProducesResponseType(404, Type = typeof(Result))]

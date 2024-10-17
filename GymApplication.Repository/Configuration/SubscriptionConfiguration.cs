@@ -31,6 +31,10 @@ public class SubscriptionConfiguration : IEntityTypeConfiguration<Subscription>
         
         builder.Property(e => e.DeletedAt);
         
+        builder.Property(e => e.TotalMonth)
+            .HasDefaultValue(1)
+            .IsRequired();
+        
         builder.HasMany(e => e.UserSubscriptions)
             .WithOne(e => e.Subscription)
             .HasForeignKey(e => e.SubscriptionId)
