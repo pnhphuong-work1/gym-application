@@ -7,6 +7,7 @@ using GymApplication.Shared.BusinessObject.CheckLogs.Response;
 using GymApplication.Shared.Common;
 using GymApplication.Shared.Emuns;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace GymApplication.Services.Feature.CheckLogsFeatures;
 
@@ -25,12 +26,11 @@ public sealed class GetAllCheckLogsHandler : IRequestHandler<GetAllCheckLogsRequ
     {
         var logs = _checkLogRepo.GetQueryable();
         
-        logs.Where(l => l.IsDeleted == false);
+        logs = logs.Include(l => l.User)
+            .Where(l => l.IsDeleted == false);
         
         Expression<Func<CheckLog, object>> sortBy = request.SortBy switch
         {
-            "userName" => l => l.User.UserName,
-            "email" => l => l.User.Email,
             "fullName" => l => l.User.FullName,
             "checkStatus" => l => l.CheckStatus!,
             "createdAt" => l => l.CreatedAt,
@@ -46,10 +46,9 @@ public sealed class GetAllCheckLogsHandler : IRequestHandler<GetAllCheckLogsRequ
         
         Expression<Func<CheckLog, bool>> searchBy = request.SearchBy switch
         {
-            "userName" => l => l.User.UserName.Contains(request.Search!),
             "fullName" => l => l.User.FullName.Contains(request.Search!),
-            "email" => l => l.User.Email.Contains(request.Search!),
             "createdAt" => l => l.CreatedAt.ToString().Contains(request.Search!),
+            "checkStatus" => l => l.CheckStatus!.Contains(request.Search!),
             _ => l => l.User.UserName.Contains(request.Search!)
         };
 
@@ -57,6 +56,8 @@ public sealed class GetAllCheckLogsHandler : IRequestHandler<GetAllCheckLogsRequ
         {
             logs = logs.Where(searchBy);
         }
+
+        logs = logs.OrderByDescending(l => l.CreatedAt);
        
         var list = await PagedResult<CheckLog>.CreateAsync(logs, request.CurrentPage, request.PageSize);
         

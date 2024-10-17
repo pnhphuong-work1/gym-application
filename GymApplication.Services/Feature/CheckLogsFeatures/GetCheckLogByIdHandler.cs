@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using AutoMapper;
 using GymApplication.Repository.Entities;
 using GymApplication.Repository.Repository.Abstraction;
@@ -21,7 +22,11 @@ public sealed class GetCheckLogByIdHandler : IRequestHandler<GetCheckLogsByIdReq
 
     public async Task<Result<CheckLogsResponse>> Handle(GetCheckLogsByIdRequest request, CancellationToken cancellationToken)
     {
-        var checkLog = await _checkLogRepo.GetByIdAsync(request.Id);
+        Expression<Func<CheckLog, object>>[] includes =
+        [
+            x => x.User
+        ];
+        var checkLog = await _checkLogRepo.GetByIdAsync(request.Id, includes);
         if (checkLog == null)
         {
             Error error = new("404", "CheckLog not found");

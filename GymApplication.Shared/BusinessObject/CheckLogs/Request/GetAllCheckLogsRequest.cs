@@ -18,23 +18,23 @@ public sealed class GetAllCheckLogsRequestValidation : AbstractValidator<GetAllC
             .WithMessage("PageSize must be greater than 0");
 
         RuleFor(u => u.SortBy)
-            .Must(u => u is "userName" or "email" or "fullName" or "checkStatus" or "createdAt" )
-            .WithMessage("SortBy must be either userName, email, fullName, checkStatus, createdAt");
+            .Must(u => u is "fullName" or "checkStatus" or "createdAt" )
+            .WithMessage("SortBy must be either fullName, checkStatus, createdAt");
 
         RuleFor(u => u.SortOrder)
             .Must(u => u is "asc" or "desc")
             .WithMessage("SortOrder must be either asc or desc");
         
         RuleFor(u => u.SearchBy)
-            .Must(u => u is "userName" or "email" or "fullName" or  "createdAt")
-            .WithMessage("SearchBy must be either userName, email, fullName, createdAt");
+            .Must(u => u is "fullName" or "checkStatus" or "createdAt")
+            .WithMessage("SearchBy must be either fullName, createdAt, checkStatus");
     }
 }
 
 public sealed class GetAllCheckLogsRequest : IRequest<Result<PagedResult<CheckLogsResponse>>>
 {
     public string? Search { get; set; }
-    public string? SearchBy { get; set; } = "userName";
+    public string? SearchBy { get; set; } = "fullName";
     public string SortOrder { get; set; } = "desc";
     public string? SortBy { get; set; } = "createdAt";
     public int CurrentPage { get; set; } = 1;

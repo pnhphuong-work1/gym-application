@@ -25,6 +25,7 @@ public class ServiceProfile : Profile
             .ForMember(x => x.Amount, opt => opt.MapFrom(x => x.UserSubscriptions.Sum(u => u.PaymentPrice)));
 
         CreateMap<CheckLog, CheckLogsResponse>()
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName))
             .ReverseMap();
 
         CreateMap<PagedResult<CheckLog>, PagedResult<CheckLogsResponse>>()
