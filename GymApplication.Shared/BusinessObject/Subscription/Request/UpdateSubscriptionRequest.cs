@@ -34,8 +34,8 @@ public sealed class UpdateSubscriptionRequest : IRequest<Result>
     [NotMapped]
     [SwaggerIgnore]
     public Guid Id { get; set; }
-    public string Name { get; set; }
-    public string TotalWorkoutTime { get; set; }
+    public string? Name { get; set; }
+    public string? TotalWorkoutTime { get; set; }
     public decimal Price { get; set; }
     public string? Group { get; set; }
 }
