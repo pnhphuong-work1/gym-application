@@ -7,4 +7,7 @@ public sealed class CheckLogsResponse
     public Guid UserSubscriptionId { get; set; } 
     public string CheckStatus { get; set; } = string.Empty;
     public TimeOnly? WorkoutTime { get; set; }
+    public string? FullName { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public Guid UserId { get; set; }
 }
