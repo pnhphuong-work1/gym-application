@@ -44,6 +44,8 @@ public class ServiceProfile : Profile
             .ReverseMap();
         
         CreateMap<UserSubscription, SubscriptionUserResponse>()
+            .ForMember(su => su.SubscriptionStartDate,
+                opt => opt.MapFrom(su => su.Payment.PaymentDate))
             .ForMember(su => su.Group,
                 opt => opt.MapFrom(su => su.Subscription.DayGroup.Group))
             .ForMember(su => su.TotalWorkoutTime,

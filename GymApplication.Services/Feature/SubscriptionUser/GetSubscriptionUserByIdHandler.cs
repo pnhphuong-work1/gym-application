@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Linq.Expressions;
+using AutoMapper;
 using GymApplication.Repository.Entities;
 using GymApplication.Repository.Repository.Abstraction;
 using GymApplication.Shared.BusinessObject.SubscriptionUser.Request;
@@ -10,29 +11,27 @@ namespace GymApplication.Services.Feature.SubscriptionUser;
 
 public class GetSubscriptionUserByIdHandler : IRequestHandler<GetSubscriptionUserByIdRequest, Result<SubscriptionUserResponse>?>
 {
-    private readonly IRepoBase<UserSubscription, Guid> _userSubscriptionRepo;
+    private readonly IUserSubscriptionRepository _userSubscriptionRepo;
+    private readonly IMapper _mapper;
+    
 
-    public GetSubscriptionUserByIdHandler(IRepoBase<UserSubscription, Guid> userSubscriptionRepo)
+    public GetSubscriptionUserByIdHandler(IUserSubscriptionRepository userSubscriptionRepo, IMapper mapper)
     {
         _userSubscriptionRepo = userSubscriptionRepo;
+        _mapper = mapper;
     }
     public async Task<Result<SubscriptionUserResponse>?> Handle(GetSubscriptionUserByIdRequest request, CancellationToken cancellationToken)
     {
-        var subscription = await _userSubscriptionRepo.GetByIdAsync(request.Id, null);
+        Expression<Func<UserSubscription, object>>[] includes =
+        {
+            u => u.Subscription,
+            u => u.Payment,
+            u => u.Subscription.DayGroup
+        };
+        var subscription = await _userSubscriptionRepo.GetByIdAsync(request.Id, includes);
         if (subscription != null)
         {
-            var response = new SubscriptionUserResponse()
-            {
-                Id = subscription.Id,
-                UserId = subscription.UserId,
-                PaymentId = subscription.PaymentId,
-                SubscriptionId = subscription.SubscriptionId,
-                PaymentPrice = subscription.PaymentPrice,
-                WorkoutSteak = subscription.WorkoutSteak,
-                LongestWorkoutSteak = subscription.LongestWorkoutSteak,
-                LastWorkoutDate = subscription.LastWorkoutDate,
-                SubscriptionEndDate = subscription.SubscriptionEndDate
-            };
+            var response = _mapper.Map<SubscriptionUserResponse>(subscription);
             return Result.Success(response);
         }
         Error error = new("404", "Subscription not found");

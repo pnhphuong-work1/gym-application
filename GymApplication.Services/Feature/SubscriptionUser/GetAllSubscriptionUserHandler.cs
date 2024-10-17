@@ -4,7 +4,6 @@ using GymApplication.Repository.Entities;
 using GymApplication.Repository.Repository.Abstraction;
 using GymApplication.Shared.BusinessObject.SubscriptionUser.Request;
 using GymApplication.Shared.BusinessObject.SubscriptionUser.Response;
-using GymApplication.Shared.BusinessObject.User.Response;
 using GymApplication.Shared.Common;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -14,10 +13,10 @@ namespace GymApplication.Services.Feature.SubscriptionUser;
 public class GetAllSubscriptionUserHandler 
     : IRequestHandler<GetAllSubscriptionUserRequest, Result<PagedResult<SubscriptionUserResponse>>>
 {
-    private readonly IRepoBase<UserSubscription, Guid> _userSubscriptionRepo;
+    private readonly IUserSubscriptionRepository _userSubscriptionRepo;
     private readonly IMapper _mapper;
 
-    public GetAllSubscriptionUserHandler(IRepoBase<UserSubscription, Guid> userSubscriptionRepo, IMapper mapper)
+    public GetAllSubscriptionUserHandler(IUserSubscriptionRepository userSubscriptionRepo, IMapper mapper)
     {
         _userSubscriptionRepo = userSubscriptionRepo;
         _mapper = mapper;
@@ -28,6 +27,7 @@ public class GetAllSubscriptionUserHandler
         var subscriptions = _userSubscriptionRepo.GetQueryable()
             .Include(su => su.Subscription)
                 .ThenInclude(sub => sub.DayGroup)
+            .Include(su => su.Payment)
             .Include(su => su.User)
             .Where(s => s.IsDeleted == false);
         Expression<Func<UserSubscription, object>> sortBy = request.SortBy switch
