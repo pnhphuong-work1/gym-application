@@ -27,14 +27,40 @@ public sealed class GetAllCheckLogsHandler : IRequestHandler<GetAllCheckLogsRequ
         var logs = _checkLogRepo.GetQueryable();
         
         logs = logs.Include(l => l.User)
+            .Include(l => l.UserSubscription)
+            .ThenInclude(us => us.Subscription)
             .Where(l => l.IsDeleted == false);
+        
+        // Apply CheckStatus filter
+        if (request.CheckStatus != "All")
+        {
+            var checkStatus = request.CheckStatus switch
+            {
+                "CheckIn" => LogsStatus.CheckIn.ToString(),
+                "CheckOut" => LogsStatus.CheckOut.ToString(),
+                _ => LogsStatus.CheckIn.ToString() // Default case, just in case
+            };
+
+            logs = logs.Where(l => l.CheckStatus == checkStatus);
+        }
+        
+        // Apply TimeFrame filter
+        var currentTime = DateTime.UtcNow;  // Or use DateTime.Now if you're working with local time
+        logs = request.TimeFrame switch
+        {
+            "Today" => logs.Where(l => l.CreatedAt.Date == currentTime.Date),
+            "Yesterday" => logs.Where(l => l.CreatedAt.Date == currentTime.AddDays(-1).Date),
+            "ThisWeek" => logs.Where(l => l.CreatedAt >= GetStartOfWeek(currentTime)),
+            "ThisMonth" => logs.Where(l => l.CreatedAt.Year == currentTime.Year && l.CreatedAt.Month == currentTime.Month),
+            "90days" => logs.Where(l => l.CreatedAt >= currentTime.AddDays(-90)),
+            _ => logs // If "All" or any other case, don't apply additional filtering
+        };
         
         Expression<Func<CheckLog, object>> sortBy = request.SortBy switch
         {
             "fullName" => l => l.User.FullName,
-            "checkStatus" => l => l.CheckStatus!,
             "createdAt" => l => l.CreatedAt,
-            _ => l => l.UserId
+            _ => l => l.User.FullName
         };
         
         logs = request.SortOrder switch
@@ -47,9 +73,8 @@ public sealed class GetAllCheckLogsHandler : IRequestHandler<GetAllCheckLogsRequ
         Expression<Func<CheckLog, bool>> searchBy = request.SearchBy switch
         {
             "fullName" => l => l.User.FullName.Contains(request.Search!),
-            "createdAt" => l => l.CreatedAt.ToString().Contains(request.Search!),
-            "checkStatus" => l => l.CheckStatus!.Contains(request.Search!),
-            _ => l => l.User.UserName.Contains(request.Search!)
+            "subscriptionName" => l => l.UserSubscription.Subscription.Name.Contains(request.Search!),
+            _ => l => l.User.FullName.Contains(request.Search!)
         };
 
         if (!string.IsNullOrEmpty(request.Search))
@@ -66,4 +91,11 @@ public sealed class GetAllCheckLogsHandler : IRequestHandler<GetAllCheckLogsRequ
         return Result.Success(response);
         
     }
+    
+    private DateTime GetStartOfWeek(DateTime dt)
+    {
+        int diff = (7 + (dt.DayOfWeek - DayOfWeek.Monday)) % 7;
+        return dt.AddDays(-1 * diff).Date;
+    }
+    
 }

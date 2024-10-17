@@ -119,7 +119,7 @@ public class CreateCheckLogsHandler : IRequestHandler<CreateCheckLogsRequest, Re
         }
         
         // Check today Log then Create Check log
-        var startOfLocalDay = DateTime.UtcNow.AddHours(7).Date; // Start of today in GMT+7, converted to UTC
+        var startOfLocalDay = DateTime.UtcNow.Date; // Start of today in GMT+7, converted to UTC
         var endOfLocalDay = startOfLocalDay.AddDays(1).AddTicks(-1); // End of today in GMT+7, converted to UTC
 
         var userTodayLog = await _checkLogRepo.GetByConditionsAsync(x =>
@@ -147,7 +147,7 @@ public class CreateCheckLogsHandler : IRequestHandler<CreateCheckLogsRequest, Re
                 CheckStatus = LogsStatus.CheckIn.ToString(), // Assume Check-In as default
                 WorkoutTime = null,
                 CheckInId = null,
-                CreatedAt = DateTime.UtcNow.AddHours(7) // Convert to GMT+7
+                CreatedAt = DateTime.UtcNow // Convert to GMT+7
                 //CreatedAt = DateTime.Now
             };
             
@@ -164,7 +164,7 @@ public class CreateCheckLogsHandler : IRequestHandler<CreateCheckLogsRequest, Re
                 CheckStatus = LogsStatus.CheckOut.ToString(),
                 WorkoutTime = TimeOnly.FromTimeSpan(DateTime.Now.TimeOfDay - lastCheckLog.CreatedAt.TimeOfDay),
                 CheckInId = lastCheckLog.Id, // Link to the last check-in
-                CreatedAt = DateTime.UtcNow.AddHours(7)
+                CreatedAt = DateTime.UtcNow
                 //CreatedAt = DateTime.Now
             };
 
@@ -183,7 +183,7 @@ public class CreateCheckLogsHandler : IRequestHandler<CreateCheckLogsRequest, Re
                 CheckStatus = LogsStatus.CheckIn.ToString(),
                 WorkoutTime = null,
                 CheckInId = null,
-                CreatedAt = DateTime.UtcNow.AddHours(7)
+                CreatedAt = DateTime.UtcNow
             };
         }
         else
