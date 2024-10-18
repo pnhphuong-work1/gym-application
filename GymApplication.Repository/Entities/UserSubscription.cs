@@ -12,6 +12,7 @@ public class UserSubscription : Entity<Guid>, IAuditableEntity
     public int LongestWorkoutSteak { get; set; }
     public DateTime LastWorkoutDate { get; set; }
     public DateTime SubscriptionEndDate { get; set; }
+    public TimeOnly CheckInTime { get; set; }
     public bool IsDeleted { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }

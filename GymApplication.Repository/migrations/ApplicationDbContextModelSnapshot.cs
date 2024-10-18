@@ -307,6 +307,9 @@ namespace GymApplication.Repository.migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<TimeOnly>("CheckInTime")
+                        .HasColumnType("time without time zone");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
