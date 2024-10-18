@@ -81,12 +81,19 @@ public sealed class GetAllCheckLogsHandler : IRequestHandler<GetAllCheckLogsRequ
         {
             logs = logs.Where(searchBy);
         }
-
-        logs = logs.OrderByDescending(l => l.CreatedAt);
        
         var list = await PagedResult<CheckLog>.CreateAsync(logs, request.CurrentPage, request.PageSize);
         
         var response = _mapper.Map<PagedResult<CheckLogsResponse>>(list);
+        
+        foreach (var checkLog in response.Items)
+        {
+            if (checkLog.CheckStatus == LogsStatus.CheckOut.ToString())
+            {
+                var checkInLog = list.Items.FirstOrDefault(l => l.Id == checkLog.CheckInId);
+                checkLog.CheckInTime = checkInLog?.CreatedAt; // Assuming CreatedAt is the CheckInTime you want
+            }
+        }
         
         return Result.Success(response);
         
