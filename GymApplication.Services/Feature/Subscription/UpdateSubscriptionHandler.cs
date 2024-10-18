@@ -5,7 +5,7 @@ using GymApplication.Shared.BusinessObject.Subscription.Respone;
 using GymApplication.Shared.Common;
 using MediatR;
 
-namespace GymApplication.Services.Feature.SubcriptionFeatures;
+namespace GymApplication.Services.Feature.Subscription;
 
 public sealed class UpdateSubscriptionHandler : IRequestHandler<UpdateSubscriptionRequest, Result>
 {

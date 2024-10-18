@@ -33,6 +33,8 @@ public class ServiceProfile : Profile
             .ReverseMap();
         
         CreateMap<Subscription, SubscriptionResponse>()
+            .ForMember(s => s.Group,
+                opt => opt.MapFrom(s => s.DayGroup.Group))
             .ReverseMap();
         
         CreateMap<PagedResult<Subscription>, PagedResult<SubscriptionResponse>>()

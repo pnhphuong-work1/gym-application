@@ -8,5 +8,5 @@ public sealed class SubscriptionResponse
     public TimeOnly? TotalWorkoutTime { get; set; }
     public decimal Price { get; set; }
     public Guid DayGroupId { get; set; }
-    public string Group { get; set; }
+    public string? Group { get; set; }
 }
