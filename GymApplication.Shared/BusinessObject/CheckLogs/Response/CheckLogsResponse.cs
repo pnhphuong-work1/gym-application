@@ -11,4 +11,5 @@ public sealed class CheckLogsResponse
     public DateTime CreatedAt { get; set; }
     public Guid UserId { get; set; }
     public string? SubscriptionName { get; set; }
+    public DateTime? CheckInTime { get; set; }
 }
