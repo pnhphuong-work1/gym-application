@@ -39,7 +39,7 @@ public class UserController : RestController
     [ProducesResponseType(404, Type = typeof(Result))]
     public async Task<IResult> GetUserById(Guid id)
     {
-        var request = new GetCustomerById() { Id = id };
+        var request = new GetCustomerById(id);
         var result = await _mediator.Send(request);
         return result.IsSuccess 
             ? Results.Ok(result) 
