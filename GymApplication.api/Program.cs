@@ -69,7 +69,10 @@ if (app.Environment.IsDevelopment())
         }
     });
 }
-app.UseExceptionHandler();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler();
+}
 
 app.UseHttpsRedirection();
 
