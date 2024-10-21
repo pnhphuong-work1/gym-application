@@ -44,8 +44,9 @@ public sealed class GetCustomerByIdHandler : IRequestHandler<GetCustomerById, Re
                 DateOfBirth = user.DateOfBirth,
                 UserName = user.UserName ?? "",
                 TotalSpentTime = user.CheckLogs.Where(x => x.CheckStatus == LogsStatus.CheckOut.ToString())
-                    .Sum(x => x.WorkoutTime!.Value.Hour),
-                TotalPayment = user.Payments.Select(x => x.UserSubscriptions.Sum(us => us.PaymentPrice)).Sum(),
+                    .Sum(x => x.WorkoutTime?.Hour ?? 0),
+                TotalPayment = user.UserSubscriptions.Sum(us => us.PaymentPrice),
+                //TotalPayment = user.Payments.Select(x => x.UserSubscriptions.Sum(us => us.PaymentPrice)).Sum(),
                 Subscriptions = user.UserSubscriptions.Select(us => _mapper.Map<SubscriptionResponse>(us.Subscription)).ToList()
             };
             return Result.Success(userResponse);
