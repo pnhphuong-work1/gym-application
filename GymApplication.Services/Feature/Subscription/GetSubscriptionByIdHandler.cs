@@ -21,7 +21,12 @@ namespace GymApplication.Services.Feature.Subscription
         }
         public async Task<Result<SubscriptionResponse>> Handle(GetSubscriptionById request, CancellationToken cancellationToken)
         {
-            var subscription = await _subscriptionRepository.GetByIdAsync(request.Id, null);
+            Expression<Func<Repository.Entities.Subscription, object>>[] includes =
+            {
+                s => s.DayGroup,
+                
+            };
+            var subscription = await _subscriptionRepository.GetByIdAsync(request.Id, includes);
             if (subscription != null)
             {
                 var subscriptionResponse = _mapper.Map<SubscriptionResponse>(subscription);
