@@ -56,7 +56,7 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
             return Result.Failure<PaymentReturnResponse>(error);
         }
         
-        var paymentDetail = await _payOsServices.GetPaymentDetail(request.OrderCode);
+        //var paymentDetail = await _payOsServices.GetPaymentDetail(request.OrderCode);
         
         if (request.Cancel)
         {
@@ -72,7 +72,7 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
                 UserId = paymentLog.UserId,
                 SubscriptionId = request.SubscriptionId,
                 PaymentId = paymentLog.Id,
-                PaymentPrice = paymentDetail.amount,
+                PaymentPrice = sub.Price,
                 SubscriptionEndDate = paymentLog.PaymentDate.AddDays(sub.TotalMonth * 30)
             };
             
@@ -90,7 +90,7 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
         {
             Id = paymentLog.Id,
             PaymentStatus = paymentLog.PaymentStatus,
-            Amount = paymentDetail.amount,
+            Amount = Convert.ToInt32(sub.Price),
             PaymentDate = paymentLog.PaymentDate,
             UserId = paymentLog.UserId,
             User = _mapper.Map<UserResponse>(paymentLog.User)
