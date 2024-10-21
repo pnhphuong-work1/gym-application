@@ -24,7 +24,9 @@ public sealed class GetCheckLogByIdHandler : IRequestHandler<GetCheckLogsByIdReq
     {
         Expression<Func<CheckLog, object>>[] includes =
         [
-            x => x.User
+            x => x.User,
+            x => x.UserSubscription,
+            x => x.UserSubscription.Subscription
         ];
         var checkLog = await _checkLogRepo.GetByIdAsync(request.Id, includes);
         if (checkLog == null)

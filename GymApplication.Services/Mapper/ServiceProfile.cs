@@ -26,12 +26,15 @@ public class ServiceProfile : Profile
 
         CreateMap<CheckLog, CheckLogsResponse>()
             .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName))
+            .ForMember(dest => dest.SubscriptionName, opt => opt.MapFrom(src => src.UserSubscription.Subscription.Name))
             .ReverseMap();
 
         CreateMap<PagedResult<CheckLog>, PagedResult<CheckLogsResponse>>()
             .ReverseMap();
         
         CreateMap<Subscription, SubscriptionResponse>()
+            .ForMember(s => s.Group,
+                opt => opt.MapFrom(s => s.DayGroup.Group))
             .ReverseMap();
         
         CreateMap<PagedResult<Subscription>, PagedResult<SubscriptionResponse>>()

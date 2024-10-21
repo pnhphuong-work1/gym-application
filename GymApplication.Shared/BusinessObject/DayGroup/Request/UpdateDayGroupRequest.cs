@@ -25,5 +25,5 @@ public sealed class UpdateDayGroupRequest : IRequest<Result>
     [NotMapped]
     [SwaggerIgnore]
     public Guid Id { get; set; }
-    public string Group { get; set; }
+    public string? Group { get; set; }
 }
