@@ -4,7 +4,4 @@ using MediatR;
 
 namespace GymApplication.Shared.BusinessObject.User.Request;
 
-public sealed class GetCustomerById : IRequest<Result<CustomerResponse>>
-{
-    public Guid Id { get; set; }
-}
+public sealed record GetCustomerById(Guid Id) : IRequest<Result<CustomerResponse>>;

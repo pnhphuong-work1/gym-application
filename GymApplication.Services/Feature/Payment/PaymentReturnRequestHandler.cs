@@ -18,13 +18,14 @@ namespace GymApplication.Services.Feature.Payment;
 public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnRequest, Result<PaymentReturnResponse>>
 {
     private readonly IPaymentLogRepository _paymentLogRepository;
+    private readonly IRepoBase<Repository.Entities.Subscription, Guid> _subscriptionRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPayOsServices _payOsServices;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IMapper _mapper;
     private readonly ISender _sender;
 
-    public PaymentReturnRequestHandler(IPaymentLogRepository paymentLogRepository, IPayOsServices payOsServices, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapper mapper, ISender sender)
+    public PaymentReturnRequestHandler(IPaymentLogRepository paymentLogRepository, IPayOsServices payOsServices, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapper mapper, ISender sender, IRepoBase<Repository.Entities.Subscription, Guid> subscriptionRepository)
     {
         _paymentLogRepository = paymentLogRepository;
         _payOsServices = payOsServices;
@@ -32,6 +33,7 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
         _userManager = userManager;
         _mapper = mapper;
         _sender = sender;
+        _subscriptionRepository = subscriptionRepository;
     }
 
     public async Task<Result<PaymentReturnResponse>> Handle(PaymentReturnRequest request, CancellationToken cancellationToken)
@@ -45,6 +47,15 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
             var error = new Error("404", "Payment not found");
             return Result.Failure<PaymentReturnResponse>(error);
         }
+        
+        var sub = await _subscriptionRepository.GetByIdAsync(request.SubscriptionId);
+        
+        if (sub is null)
+        {
+            var error = new Error("404", "Subscription not found");
+            return Result.Failure<PaymentReturnResponse>(error);
+        }
+        
         var paymentDetail = await _payOsServices.GetPaymentDetail(request.OrderCode);
         
         if (request.Cancel)
@@ -62,7 +73,7 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
                 SubscriptionId = request.SubscriptionId,
                 PaymentId = paymentLog.Id,
                 PaymentPrice = paymentDetail.amount,
-                SubscriptionEndDate = paymentLog.PaymentDate.AddDays(30)
+                SubscriptionEndDate = paymentLog.PaymentDate.AddDays(sub.TotalMonth * 30)
             };
             
             var result = await _sender.Send(createUserSubscriptionRequest, cancellationToken);
