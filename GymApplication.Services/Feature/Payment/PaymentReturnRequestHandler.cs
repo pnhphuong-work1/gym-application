@@ -55,7 +55,7 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
             var error = new Error("404", "Subscription not found");
             return Result.Failure<PaymentReturnResponse>(error);
         }
-        
+        // cause The data is unreliable because the signature of the response does not match the signature of the data
         //var paymentDetail = await _payOsServices.GetPaymentDetail(request.OrderCode);
         
         if (request.Cancel)
