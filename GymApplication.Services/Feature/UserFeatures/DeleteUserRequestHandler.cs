@@ -34,6 +34,7 @@ public sealed class DeleteUserRequestHandler : IRequestHandler<DeleteUserRequest
         if (result.Succeeded)
         {
             await _cacheServices.RemoveAsync(request.Id.ToString(), cancellationToken);
+            await _cacheServices.RemoveByPrefixAsync("GetAll", cancellationToken);
             return Result.Success();
         }
         
