@@ -40,6 +40,7 @@ public sealed class UpdateUserRequestHandler : IRequestHandler<UpdateUserRequest
         if (result.Succeeded)
         {
             await _cacheServices.SetAsync(user.Id.ToString(), user, cancellationToken);
+            await _cacheServices.RemoveByPrefixAsync("GetAll", cancellationToken);
             return Result.Success();
         }
         

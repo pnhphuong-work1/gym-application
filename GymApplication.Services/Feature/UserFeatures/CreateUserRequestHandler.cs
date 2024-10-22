@@ -94,6 +94,7 @@ public sealed class CreateUserRequestHandler : IRequestHandler<CreateUserRequest
         
         var response = _mapper.Map<UserResponse>(user);
         await _cacheServices.SetAsync(user.Id.ToString(), response, TimeSpan.FromMinutes(5), cancellationToken);
+        await _cacheServices.RemoveByPrefixAsync("GetAll", cancellationToken);
         return Result.Success(response);
     }
 
