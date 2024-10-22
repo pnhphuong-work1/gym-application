@@ -151,7 +151,19 @@ public class CreateCheckLogsHandler : IRequestHandler<CreateCheckLogsRequest, Re
                 //CreatedAt = DateTime.Now
             };
             
-            await _cacheServices.SetAsync<TimeOnly>($"remaining-time{request.UserId.ToString()}-{DateTime.Today}", (existUserSubscription.Subscription?.TotalWorkoutTime).Value, cancellationToken);
+            // Calculate the remaining time until the end of the day (midnight)
+            var currentTime = DateTime.Now;
+            var endOfDay = currentTime.Date.AddDays(1).AddTicks(-1); // End of the day (23:59:59)
+            TimeSpan timeToLive = endOfDay - currentTime;
+
+            // Set the remaining workout time in cache with expiration at the end of the day
+            await _cacheServices.SetAsync<TimeOnly>(
+                $"remaining-time{request.UserId.ToString()}-{DateTime.Today}",
+                (existUserSubscription.Subscription?.TotalWorkoutTime).Value,
+                timeToLive,  // TimeSpan for cache expiration
+                cancellationToken
+            );
+            
         }
         else if (lastCheckLog.CheckStatus == LogsStatus.CheckIn.ToString())
         {
@@ -169,8 +181,19 @@ public class CreateCheckLogsHandler : IRequestHandler<CreateCheckLogsRequest, Re
             };
 
             // Update remaining workout time if necessary
+            // Calculate the remaining time until the end of the day (midnight)
+            var currentTime = DateTime.Now;
+            var endOfDay = currentTime.Date.AddDays(1).AddTicks(-1); // End of the day (23:59:59)
+            TimeSpan timeToLive = endOfDay - currentTime;
+
+            // Update remaining workout time and set it in cache with expiration at the end of the day
             var remainingTimeToday = (remainingTime - checkLog.WorkoutTime).Value;
-            await _cacheServices.SetAsync<TimeOnly>($"remaining-time{request.UserId.ToString()}-{DateTime.Today}", TimeOnly.FromTimeSpan(remainingTimeToday), cancellationToken);
+            await _cacheServices.SetAsync<TimeOnly>(
+                $"remaining-time{request.UserId.ToString()}-{DateTime.Today}",
+                TimeOnly.FromTimeSpan(remainingTimeToday),
+                timeToLive,  // TimeSpan for cache expiration
+                cancellationToken
+            );
         }
         else if (lastCheckLog.CheckStatus == LogsStatus.CheckOut.ToString())
         {
