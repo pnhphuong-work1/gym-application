@@ -87,4 +87,17 @@ public class CheckLogsController : RestController
             : HandlerFailure(result);
     }
     
+    [HttpGet("user/{userId:guid}")]
+    [ProducesResponseType(200, Type = typeof(Result<PagedResult<CheckLogsResponse>>))]
+    //[ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Get))]
+    [Authorize(Roles = "User")]
+    public async Task<IResult> GetUserCheckLogs(GetUserCheckLogsRequest request)
+    { 
+        var result = await _mediator.Send(request);
+        
+        return result.IsSuccess 
+            ? Results.Ok(result) 
+            : HandlerFailure(result);
+    }
+    
 }
