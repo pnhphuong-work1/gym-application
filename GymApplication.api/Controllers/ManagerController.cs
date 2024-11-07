@@ -22,7 +22,7 @@ public class ManagerController : RestController
     }
     
     [HttpGet]
-    //[Authorize]
+    [Authorize(Roles = nameof(Role.Admin))]
     public async Task<IResult> Get([FromQuery] GetAllUserRequest request)
     {
         request.Role = Role.Manager;
@@ -47,6 +47,7 @@ public class ManagerController : RestController
     [HttpGet("{id:guid}", Name = "GetManagerById")]
     [ProducesResponseType(200, Type = typeof(Result<UserResponse>))]
     [ProducesResponseType(404, Type = typeof(Result))]
+    [Authorize]
     public async Task<IResult> GetUserById(Guid id)
     {
         var request = new GetUserById(id);
