@@ -39,7 +39,11 @@ public class GetSubscriptionUserByUserIdHandler : IRequestHandler<GetSubscriptio
             x => x.Subscription.DayGroup
         };
         var subsList = await _userSubscriptionRepo
-            .GetByConditionsAsync(x => x.UserId == existedUser.Id, includes);
+            .GetByConditionsAsync(
+                x => 
+                x.UserId == existedUser.Id 
+                && x.SubscriptionEndDate <= DateTime.UtcNow.AddHours(7)
+                , includes);
         if (!subsList.Any())
         {
             var error = new Error("404", "No Subscription Found");

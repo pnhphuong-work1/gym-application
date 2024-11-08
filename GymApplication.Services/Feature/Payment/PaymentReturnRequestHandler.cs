@@ -19,13 +19,14 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
 {
     private readonly IPaymentLogRepository _paymentLogRepository;
     private readonly IRepoBase<Repository.Entities.Subscription, Guid> _subscriptionRepository;
+    private readonly IUserSubscriptionRepository _userSubscriptionRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPayOsServices _payOsServices;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IMapper _mapper;
     private readonly ISender _sender;
 
-    public PaymentReturnRequestHandler(IPaymentLogRepository paymentLogRepository, IPayOsServices payOsServices, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapper mapper, ISender sender, IRepoBase<Repository.Entities.Subscription, Guid> subscriptionRepository)
+    public PaymentReturnRequestHandler(IPaymentLogRepository paymentLogRepository, IPayOsServices payOsServices, IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager, IMapper mapper, ISender sender, IRepoBase<Repository.Entities.Subscription, Guid> subscriptionRepository, IUserSubscriptionRepository userSubscriptionRepository)
     {
         _paymentLogRepository = paymentLogRepository;
         _payOsServices = payOsServices;
@@ -34,6 +35,7 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
         _mapper = mapper;
         _sender = sender;
         _subscriptionRepository = subscriptionRepository;
+        _userSubscriptionRepository = userSubscriptionRepository;
     }
 
     public async Task<Result<PaymentReturnResponse>> Handle(PaymentReturnRequest request, CancellationToken cancellationToken)
@@ -42,6 +44,8 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
             .Include(x => x.User)
             .FirstOrDefaultAsync(x => x.PayOsOrderId == request.OrderCode, cancellationToken);
 
+        
+        
         if (paymentLog is null)
         {
             var error = new Error("404", "Payment not found");
@@ -57,6 +61,12 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
         }
         // cause The data is unreliable because the signature of the response does not match the signature of the data
         //var paymentDetail = await _payOsServices.GetPaymentDetail(request.OrderCode);
+
+        var userSubs = (await _userSubscriptionRepository
+            .GetByConditionsAsync(x => 
+                x.UserId == paymentLog.UserId
+                && x.SubscriptionId == request.SubscriptionId
+                && x.SubscriptionEndDate <= DateTime.UtcNow.AddHours(7))).FirstOrDefault();
         
         if (request.Cancel)
         {
@@ -65,8 +75,14 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
         } 
         else if (request.Status == "PAID")
         {
+            
             paymentLog.PaymentStatus = PaymentStatus.Success.ToString();
             _paymentLogRepository.Update(paymentLog);
+            if (userSubs is not null)
+            {
+                userSubs.SubscriptionEndDate = userSubs.SubscriptionEndDate.AddDays(sub.TotalMonth * 30);
+                _userSubscriptionRepository.Update(userSubs);
+            }
             var createUserSubscriptionRequest = new CreateSubscriptionUserRequest()
             {
                 UserId = paymentLog.UserId,
