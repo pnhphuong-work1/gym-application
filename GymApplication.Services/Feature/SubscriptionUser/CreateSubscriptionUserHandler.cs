@@ -54,10 +54,11 @@ public sealed class CreateSubscriptionUserHandler : IRequestHandler<CreateSubscr
         var existedUserSubs = await _subscriptionUserRepo
             .GetByConditionsAsync(x => 
                 x.UserId == request.UserId
-                & x.SubscriptionId == request.SubscriptionId);
+                && x.SubscriptionId == request.SubscriptionId 
+                && x.SubscriptionEndDate <= DateTime.UtcNow);
         if (existedUserSubs.Count != 0)
         {
-            Error error = new("404", "User already have this subscription.");
+            Error error = new("409", "User already have this subscription.");
             return Result.Failure<SubscriptionUserResponse>(error);
         }
         //Check existed payment
