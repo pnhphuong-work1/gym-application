@@ -4,6 +4,7 @@ using GymApplication.Shared.BusinessObject.Email;
 using GymApplication.Shared.Common;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace GymApplication.Services.Feature.Auth;
 
@@ -11,11 +12,13 @@ public sealed class ResendVerifyEmailRequestHandler : IRequestHandler<ResendVeri
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IPublisher _publisher;
+    private readonly IConfiguration _configuration;
 
-    public ResendVerifyEmailRequestHandler(UserManager<ApplicationUser> userManager, IPublisher publisher)
+    public ResendVerifyEmailRequestHandler(UserManager<ApplicationUser> userManager, IPublisher publisher, IConfiguration configuration)
     {
         _userManager = userManager;
         _publisher = publisher;
+        _configuration = configuration;
     }
 
     public async Task<Result> Handle(ResendVerifyEmailRequest request, CancellationToken cancellationToken)
@@ -32,7 +35,8 @@ public sealed class ResendVerifyEmailRequestHandler : IRequestHandler<ResendVeri
         // Encode the token and email before adding to the URL
         var encodedToken = Uri.EscapeDataString(verifyToken);
         var encodedEmail = Uri.EscapeDataString(request.Email);
-        var verifyUrl = $"https://localhost:3000/verify-email?email={encodedEmail}&token={encodedToken}";
+        var baseUrl = _configuration["FEApp:BaseUrl"];
+        var verifyUrl = $"{baseUrl}/verify-email?email={encodedEmail}&token={encodedToken}";
         var emailTemplate = Helper.GetEmailTemplate(user.FullName, verifyUrl);
         
         //Send email notification

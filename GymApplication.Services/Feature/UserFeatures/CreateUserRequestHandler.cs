@@ -8,6 +8,7 @@ using GymApplication.Shared.BusinessObject.User.Response;
 using GymApplication.Shared.Common;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using UUIDNext;
 
 namespace GymApplication.Services.Feature.UserFeatures;
@@ -19,14 +20,16 @@ public sealed class CreateUserRequestHandler : IRequestHandler<CreateUserRequest
     private readonly ICacheServices _cacheServices;
     private readonly IMapper _mapper;
     private readonly IPublisher _publisher;
+    private readonly IConfiguration _configuration;
 
-    public CreateUserRequestHandler(UserManager<ApplicationUser> userManager, IMapper mapper, RoleManager<ApplicationRole> roleManager, ICacheServices cacheServices, IPublisher publisher)
+    public CreateUserRequestHandler(UserManager<ApplicationUser> userManager, IMapper mapper, RoleManager<ApplicationRole> roleManager, ICacheServices cacheServices, IPublisher publisher, IConfiguration configuration)
     {
         _userManager = userManager;
         _mapper = mapper;
         _roleManager = roleManager;
         _cacheServices = cacheServices;
         _publisher = publisher;
+        _configuration = configuration;
     }
 
     public async Task<Result<UserResponse>> Handle(CreateUserRequest request, CancellationToken cancellationToken)
@@ -78,7 +81,8 @@ public sealed class CreateUserRequestHandler : IRequestHandler<CreateUserRequest
         // Encode the token and email before adding to the URL
         var encodedToken = Uri.EscapeDataString(verifyToken);
         var encodedEmail = Uri.EscapeDataString(user.Email!);
-        var verifyUrl = $"https://localhost:3000/verify-email?email={encodedEmail}&token={encodedToken}";
+        var baseUrl = _configuration["FEApp:BaseUrl"];
+        var verifyUrl = $"{baseUrl}/verify-email?email={encodedEmail}&token={encodedToken}";
         var emailTemplate = Helper.GetEmailTemplate(user.FullName, verifyUrl);
         
         //Send email notification
