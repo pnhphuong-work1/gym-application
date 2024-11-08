@@ -4,6 +4,7 @@ using GymApplication.Shared.BusinessObject.Email;
 using GymApplication.Shared.Common;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 namespace GymApplication.Services.Feature.Auth;
 
@@ -11,11 +12,13 @@ public sealed class ForgotPasswordRequestHandler : IRequestHandler<ForgotPasswor
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IPublisher _publisher;
+    private readonly IConfiguration _configuration;
 
-    public ForgotPasswordRequestHandler(UserManager<ApplicationUser> userManager, IPublisher publisher)
+    public ForgotPasswordRequestHandler(UserManager<ApplicationUser> userManager, IPublisher publisher, IConfiguration configuration)
     {
         _userManager = userManager;
         _publisher = publisher;
+        _configuration = configuration;
     }
 
     public async Task<Result> Handle(ForgotPasswordRequest request, CancellationToken cancellationToken)
@@ -32,8 +35,8 @@ public sealed class ForgotPasswordRequestHandler : IRequestHandler<ForgotPasswor
         // Encode the token and email before adding to the URL
         var encodedToken = Uri.EscapeDataString(resetToken);
         var encodedEmail = Uri.EscapeDataString(request.Email);
-        
-        var resetUrl = $"https://localhost:3000/reset-password?email={encodedEmail}&token={encodedToken}";
+        var baseUrl = _configuration["FEApp:BaseUrl"];
+        var resetUrl = $"{baseUrl}/reset-password?email={encodedEmail}&token={encodedToken}";
         var emailTemplate = Helper.GetForgotPasswordEmailTemplate(user.FullName, resetUrl);
         
         //Send email notification
