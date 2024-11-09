@@ -60,9 +60,16 @@ public class GetRevenueRequestHandler : IRequestHandler<GetRevenueRequest, Resul
     private static int GetWeekOfMonth(DateTime date, Calendar calendar)
     {
         var firstDayOfMonth = new DateTime(date.Year, date.Month, 1);
-        var firstWeekOfMonth = calendar.GetWeekOfYear(firstDayOfMonth, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
-        var currentWeek = calendar.GetWeekOfYear(date, CalendarWeekRule.FirstDay, DayOfWeek.Monday);
 
-        return currentWeek - firstWeekOfMonth + 1;  // Subtract to get relative week of the month
+        // Find the first Monday of the month
+        var firstMonday = firstDayOfMonth;
+        while (firstMonday.DayOfWeek != DayOfWeek.Monday)
+        {
+            firstMonday = firstMonday.AddDays(1);
+        }
+
+        // Calculate the number of full weeks between the first Monday and the given date
+        var daysDifference = (date - firstMonday).Days;
+        return (daysDifference / 7) + 1;
     }
 }
