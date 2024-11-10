@@ -42,7 +42,7 @@ public class GetSubscriptionUserByUserIdHandler : IRequestHandler<GetSubscriptio
             .GetByConditionsAsync(
                 x => 
                 x.UserId == existedUser.Id 
-                && x.SubscriptionEndDate <= DateTime.UtcNow.AddHours(7)
+                && x.SubscriptionEndDate >= DateTime.UtcNow
                 , includes);
         if (!subsList.Any())
         {

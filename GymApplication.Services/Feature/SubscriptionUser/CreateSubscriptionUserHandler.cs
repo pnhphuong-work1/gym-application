@@ -55,7 +55,7 @@ public sealed class CreateSubscriptionUserHandler : IRequestHandler<CreateSubscr
             .GetByConditionsAsync(x => 
                 x.UserId == request.UserId
                 && x.SubscriptionId == request.SubscriptionId 
-                && x.SubscriptionEndDate <= DateTime.UtcNow);
+                && x.SubscriptionEndDate >= DateTime.UtcNow);
         if (existedUserSubs.Count != 0)
         {
             Error error = new("409", "User already have this subscription.");
@@ -81,7 +81,7 @@ public sealed class CreateSubscriptionUserHandler : IRequestHandler<CreateSubscr
             LastWorkoutDate = request.LastWorkoutDate ?? DateTime.UtcNow.AddHours(7),
             SubscriptionEndDate = request.SubscriptionEndDate.Date.ToUniversalTime(),
             IsDeleted = false,
-            CreatedAt = DateTime.UtcNow.AddHours(7)
+            CreatedAt = DateTime.UtcNow
         };
         //Add to DB
         _subscriptionUserRepo.Add(newSubscriptionUser);
