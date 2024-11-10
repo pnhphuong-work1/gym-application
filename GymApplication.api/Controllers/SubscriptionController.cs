@@ -4,6 +4,7 @@ using GymApplication.Shared.BusinessObject.Subscription.Request;
 using GymApplication.Shared.BusinessObject.Subscription.Respone;
 using GymApplication.Shared.Common;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymApplication.api.Controllers;
@@ -20,6 +21,7 @@ public class SubscriptionController : RestController
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin,Manager,User")]
     [ProducesResponseType(200, Type = typeof(Result<PagedResult<SubscriptionResponse>>))]
     public async Task<IResult> Get([FromQuery] GetAllSubscriptionsRequest request)
     {
@@ -31,6 +33,7 @@ public class SubscriptionController : RestController
     }
     
     [HttpGet("{id:guid}", Name = "GetSubscriptionById")]
+    [Authorize(Roles = "Admin,Manager,User")]
     [ProducesResponseType(200, Type = typeof(Result<SubscriptionResponse>))]
     [ProducesResponseType(404, Type = typeof(Result))]
     public async Task<IResult> GetSubscriptionById(Guid id)
@@ -43,6 +46,7 @@ public class SubscriptionController : RestController
     }
     
     [HttpPost]
+    [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(201, Type = typeof(Result<SubscriptionResponse>))]
     [ProducesResponseType(400, Type = typeof(Result))]
     public async Task<IResult> Post([FromBody] CreateSubscriptionRequest request)
@@ -55,6 +59,7 @@ public class SubscriptionController : RestController
     }
     
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(200, Type = typeof(Result<SubscriptionResponse>))]
     [ProducesResponseType(404, Type = typeof(Result))]
     public async Task<IResult> Put(Guid id, [FromBody] UpdateSubscriptionRequest request)
@@ -67,6 +72,7 @@ public class SubscriptionController : RestController
     }
     
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(200, Type = typeof(Result))]
     [ProducesResponseType(404, Type = typeof(Result))]
     public async Task<IResult> Delete([FromRoute] Guid id)

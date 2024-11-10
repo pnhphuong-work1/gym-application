@@ -5,6 +5,7 @@ using GymApplication.Shared.BusinessObject.DayGroups.Request;
 using GymApplication.Shared.BusinessObject.DayGroups.Respone;
 using GymApplication.Shared.Common;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GymApplication.api.Controllers;
@@ -21,6 +22,7 @@ public class DayGroupController : RestController
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(200, Type = typeof(Result<PagedResult<DayGroupResponse>>))]
     public async Task<IResult> Get([FromQuery] GetAllDayGroupsRequest request)
     {
@@ -32,6 +34,7 @@ public class DayGroupController : RestController
     }
     
     [HttpGet("{id:guid}", Name = "GetDayGroupById")]
+    [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(200, Type = typeof(Result<DayGroupResponse>))]
     [ProducesResponseType(404, Type = typeof(Result))]
     public async Task<IResult> GetDayGroupById(Guid id)
@@ -44,6 +47,7 @@ public class DayGroupController : RestController
     }
     
     [HttpPost]
+    [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(201, Type = typeof(Result<DayGroupResponse>))]
     [ProducesResponseType(400, Type = typeof(Result))]
     public async Task<IResult> Post([FromBody] CreateDayGroupRequest request)
@@ -56,6 +60,7 @@ public class DayGroupController : RestController
     }
     
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(200, Type = typeof(Result<DayGroupResponse>))]
     [ProducesResponseType(404, Type = typeof(Result))]
     public async Task<IResult> Put(Guid id, [FromBody] UpdateDayGroupRequest request)
@@ -68,6 +73,7 @@ public class DayGroupController : RestController
     }
     
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(200, Type = typeof(Result))]
     [ProducesResponseType(404, Type = typeof(Result))]
     public async Task<IResult> Delete([FromRoute] Guid id)
