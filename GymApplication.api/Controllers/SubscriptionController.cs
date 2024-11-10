@@ -21,7 +21,6 @@ public class SubscriptionController : RestController
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,Manager,User")]
     [ProducesResponseType(200, Type = typeof(Result<PagedResult<SubscriptionResponse>>))]
     public async Task<IResult> Get([FromQuery] GetAllSubscriptionsRequest request)
     {
