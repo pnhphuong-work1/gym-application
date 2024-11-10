@@ -66,7 +66,7 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
             .GetByConditionsAsync(x => 
                 x.UserId == paymentLog.UserId
                 && x.SubscriptionId == request.SubscriptionId
-                && x.SubscriptionEndDate <= DateTime.UtcNow.AddHours(7))).FirstOrDefault();
+                && x.SubscriptionEndDate >= DateTime.UtcNow)).FirstOrDefault();
         
         if (request.Cancel)
         {
