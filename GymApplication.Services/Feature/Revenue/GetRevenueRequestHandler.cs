@@ -47,11 +47,20 @@ public class GetRevenueRequestHandler : IRequestHandler<GetRevenueRequest, Resul
             })
             .ToList();
         
+        // Assume exactly 4 weeks in a month
+        var allWeeks = Enumerable.Range(1, 4)  // Create weeks 1 to 4
+            .Select(week => new WeeklyRevenueResponse
+            {
+                Week = week.ToString(),
+                Revenue = weeklyRevenue.FirstOrDefault(w => w.Week == week.ToString())?.Revenue ?? 0
+            })
+            .ToList();
+
         var response = new RevenueResponse
         {
             TotalMember = totalMember,
             TotalRevenue = totalRevenue,
-            WeeklyRevenue = weeklyRevenue
+            WeeklyRevenue = allWeeks
         };
         
         return Result.Success(response);
