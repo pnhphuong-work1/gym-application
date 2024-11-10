@@ -5,7 +5,10 @@ using GymApplication.Shared.BusinessObject.SubscriptionUser.Request;
 using GymApplication.Shared.BusinessObject.SubscriptionUser.Response;
 using GymApplication.Shared.Common;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using StackExchange.Redis;
+using Role = GymApplication.Shared.Emuns.Role;
 
 namespace GymApplication.api.Controllers;
 
@@ -21,6 +24,7 @@ public class SubscriptionUserController : RestController
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(200, Type = typeof(Result<PagedResult<SubscriptionUserResponse>>))]
     public async Task<IResult> Get([FromQuery] GetAllSubscriptionUserRequest request)
     {
@@ -31,6 +35,7 @@ public class SubscriptionUserController : RestController
     }
     
     [HttpGet("{id:guid}", Name = "GetSubscriptionUserById")]
+    [Authorize(Roles = "Admin,Manager,User")]
     [ProducesResponseType(200, Type = typeof(Result<SubscriptionUserResponse>))]
     [ProducesResponseType(404, Type = typeof(Result))]
     public async Task<IResult> GetSubscriptionUserById(Guid id)
@@ -42,6 +47,7 @@ public class SubscriptionUserController : RestController
             : HandlerFailure(result);
     }
     [HttpGet("{userId:guid}/user-subscriptions" ,Name = "GetSubscriptionUserByUserId")]
+    [Authorize(Roles = "Admin,Manager,User")]
     [ProducesResponseType(200, Type = typeof(Result<SubscriptionUserResponse>))]
     [ProducesResponseType(404, Type = typeof(Result))]
     public async Task<IResult> GetSubscriptionUserByUserId(Guid userId)
@@ -53,6 +59,7 @@ public class SubscriptionUserController : RestController
             : HandlerFailure(result);
     }
     [HttpGet("{userId:guid}/workout-days" ,Name = "GetSubscriptionUserWorkoutDaysByUserId")]
+    [Authorize(Roles = "Admin,Manager,User")]
     [ProducesResponseType(200, Type = typeof(Result<WorkoutDayResponse>))]
     [ProducesResponseType(404, Type = typeof(Result))]
     public async Task<IResult> GetSubscriptionUserWorkoutDaysByUserId(Guid userId)
@@ -66,6 +73,7 @@ public class SubscriptionUserController : RestController
     
     
     [HttpPost]
+    [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(201, Type = typeof(Result<SubscriptionUserResponse>))]
     [ProducesResponseType(400, Type = typeof(Result))]
     public async Task<IResult> Post([FromBody] CreateSubscriptionUserRequest request)
@@ -77,6 +85,7 @@ public class SubscriptionUserController : RestController
     }
     
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(200, Type = typeof(Result<SubscriptionUserResponse>))]
     [ProducesResponseType(404, Type = typeof(Result))]
     public async Task<IResult> Put(Guid id, [FromBody] UpdateSubscriptionUserRequest request)
@@ -89,6 +98,7 @@ public class SubscriptionUserController : RestController
     }
     
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin,Manager")]
     [ProducesResponseType(200, Type = typeof(Result))]
     [ProducesResponseType(404, Type = typeof(Result))]
     public async Task<IResult> Delete([FromRoute] Guid id)
