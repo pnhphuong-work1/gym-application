@@ -83,20 +83,21 @@ public sealed class PaymentReturnRequestHandler : IRequestHandler<PaymentReturnR
                 userSubs.SubscriptionEndDate = userSubs.SubscriptionEndDate.AddDays(sub.TotalMonth * 30);
                 _userSubscriptionRepository.Update(userSubs);
             }
-            var createUserSubscriptionRequest = new CreateSubscriptionUserRequest()
+            else
             {
-                UserId = paymentLog.UserId,
-                SubscriptionId = request.SubscriptionId,
-                PaymentId = paymentLog.Id,
-                PaymentPrice = sub.Price,
-                SubscriptionEndDate = paymentLog.PaymentDate.AddDays(sub.TotalMonth * 30)
-            };
-            
-            var result = await _sender.Send(createUserSubscriptionRequest, cancellationToken);
-            
-            if (result.IsFailure)
-            {
-                return Result.Failure<PaymentReturnResponse>(result.Error);
+                var createUserSubscriptionRequest = new CreateSubscriptionUserRequest()
+                {
+                    UserId = paymentLog.UserId,
+                    SubscriptionId = request.SubscriptionId,
+                    PaymentId = paymentLog.Id,
+                    PaymentPrice = sub.Price,
+                    SubscriptionEndDate = paymentLog.PaymentDate.AddDays(sub.TotalMonth * 30)
+                };
+                var result = await _sender.Send(createUserSubscriptionRequest, cancellationToken);
+                if (result.IsFailure)
+                {
+                    return Result.Failure<PaymentReturnResponse>(result.Error);
+                }
             }
         }
         
