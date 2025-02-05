@@ -4,7 +4,7 @@
 ## Installation
 
 ```bash
-  git clone https://github.com/lqviet45/PRN231-GymApp.git
+  git clone https://github.com/pnhphuong-work1/gym-application.git
 ```
 
 ## Pull Development
